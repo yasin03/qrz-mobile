@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { Alert, Button, Text, TextInput, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 import { useLogin } from "@/hooks/use-login";
 
@@ -10,42 +17,88 @@ export default function LoginScreen() {
   const loginMutation = useLogin();
 
   const handleLogin = () => {
-    if (!username || !password) {
-      Alert.alert("Uyarı", "Kullanıcı adı ve şifre zorunludur.");
+    if (!username.trim() || !password.trim()) {
+      Alert.alert(
+        "Uyarı",
+        "Kullanıcı adı ve şifre zorunludur.",
+      );
+
       return;
     }
 
     loginMutation.mutate({
-      username,
+      username: username.trim(),
       password,
     });
   };
 
+  const errorMessage =
+    loginMutation.data?.Sonuc === "0"
+      ? "Kullanıcı adı veya şifre hatalı."
+      : null;
+
   return (
-    <View className="flex-1 items-center justify-center px-6">
-      <Text className="mb-6 text-3xl font-bold">QR Zaman</Text>
+    <View className="flex-1 justify-center bg-white px-6">
+      <View className="mb-10">
+        <Text className="text-4xl font-bold text-[#052346]">
+          QR Zaman
+        </Text>
 
-      <TextInput
-        className="mb-4 w-full rounded-lg border border-gray-300 px-4 py-3"
-        placeholder="Kullanıcı adı"
-        value={username}
-        onChangeText={setUsername}
-        autoCapitalize="none"
-      />
+        <Text className="mt-2 text-base text-gray-500">
+          Personel uygulamasına hoş geldiniz
+        </Text>
+      </View>
 
-      <TextInput
-        className="mb-4 w-full rounded-lg border border-gray-300 px-4 py-3"
-        placeholder="Şifre"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
+      <View className="gap-4">
+        <View>
+          <Text className="mb-2 font-medium text-gray-700">
+            Kullanıcı Adı
+          </Text>
 
-      <Button
-        title={loginMutation.isPending ? "Giriş yapılıyor..." : "Giriş Yap"}
-        onPress={handleLogin}
-        disabled={loginMutation.isPending}
-      />
+          <TextInput
+            value={username}
+            onChangeText={setUsername}
+            placeholder="Kullanıcı adınızı girin"
+            autoCapitalize="none"
+            autoCorrect={false}
+            className="rounded-xl border border-gray-300 px-4 py-4"
+          />
+        </View>
+
+        <View>
+          <Text className="mb-2 font-medium text-gray-700">
+            Şifre
+          </Text>
+
+          <TextInput
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Şifrenizi girin"
+            secureTextEntry
+            className="rounded-xl border border-gray-300 px-4 py-4"
+          />
+        </View>
+
+        {errorMessage ? (
+          <Text className="text-sm text-red-500">
+            {errorMessage}
+          </Text>
+        ) : null}
+
+        <TouchableOpacity
+          onPress={handleLogin}
+          disabled={loginMutation.isPending}
+          className="mt-2 items-center rounded-xl bg-[#052346] py-4"
+        >
+          {loginMutation.isPending ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text className="text-base font-semibold text-white">
+              Giriş Yap
+            </Text>
+          )}
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }

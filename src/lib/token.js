@@ -1,5 +1,5 @@
-import jwt from "jsonwebtoken";
 import { SignJWT, jwtVerify } from "jose";
+import jwt from "jsonwebtoken";
 
 export const generateUserToken = (user, time) => {
   return jwt.sign(

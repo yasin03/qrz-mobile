@@ -19,6 +19,7 @@ export type LoginResponse = {
   IDSube: string | null;
   IDSubePersonel: string | null;
   IDKullanici: string;
+  token?: string;
 };
 
 export type LoginRequest = {

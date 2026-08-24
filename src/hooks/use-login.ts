@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 
+import { api } from "@/lib/axios";
 import { login } from "@/services/auth/auth-service";
 import { useAuthStore } from "@/stores/auth-store";
 
@@ -10,11 +11,17 @@ export function useLogin() {
     mutationFn: login,
 
     onSuccess: async (data) => {
-      if (data.Sonuc !== "1") {
-        return;
-      }
+      if (data.Sonuc === "1" && data.token) {
+        await setAuth(data, data.token);
 
-      await setAuth(data);
+        // console.log("AUTH TOKEN:", useAuthStore.getState().token);
+        try {
+          const response = await api.get("/api/test-auth");
+          // console.log("TEST AUTH:", response.data);
+        } catch (error) {
+          console.error("TEST AUTH ERROR:", error);
+        }
+      }
     },
   });
 }
