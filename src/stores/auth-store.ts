@@ -1,71 +1,78 @@
 import { create } from "zustand";
 
-import { getStorage, removeStorage, setStorage } from "@/lib/storage";
-
+import {
+  getStorageItem,
+  removeStorageItem,
+  setStorageItem,
+} from "@/lib/storage";
 import type { User } from "@/types/auth";
-
-const USER_KEY = "qrz_user";
-const TOKEN_KEY = "qrz_access_token";
 
 type AuthState = {
   user: User | null;
-  token: string | null;
   isAuthenticated: boolean;
   isHydrated: boolean;
 
-  setAuth: (user: User, token: string) => Promise<void>;
-  logout: () => Promise<void>;
+  setAuth: (user: User) => Promise<void>;
+
   hydrate: () => Promise<void>;
+
+  logout: () => Promise<void>;
 };
+
+const USER_KEY = "qrz_user";
+
+function isTokenExpired(token: string): boolean {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return true;
+
+    const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const padded = base64.padEnd(
+      base64.length + ((4 - (base64.length % 4)) % 4),
+      "=",
+    );
+    const decoded = atob(padded);
+    const payload = JSON.parse(decoded) as { exp?: number };
+
+    if (!payload.exp) return true;
+
+    // 10 saniyelik tolerans ile kontrol
+    return Date.now() >= (payload.exp - 10) * 1000;
+  } catch {
+    return true;
+  }
+}
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
-  token: null,
   isAuthenticated: false,
   isHydrated: false,
 
-  setAuth: async (user, token) => {
-    await setStorage(USER_KEY, JSON.stringify(user));
-
-    await setStorage(TOKEN_KEY, token);
+  setAuth: async (user) => {
+    await setStorageItem(USER_KEY, JSON.stringify(user));
 
     set({
       user,
-      token,
       isAuthenticated: true,
-    });
-  },
-
-  logout: async () => {
-    await removeStorage(USER_KEY);
-    await removeStorage(TOKEN_KEY);
-
-    set({
-      user: null,
-      token: null,
-      isAuthenticated: false,
     });
   },
 
   hydrate: async () => {
     try {
-      const storedUser = await getStorage(USER_KEY);
-      const storedToken = await getStorage(TOKEN_KEY);
+      const userJson = await getStorageItem(USER_KEY);
 
-      if (storedUser && storedToken) {
-        const user = JSON.parse(storedUser) as User;
+      const user = userJson ? (JSON.parse(userJson) as User) : null;
 
-        set({
-          user,
-          token: storedToken,
-          isAuthenticated: true,
-          isHydrated: true,
-        });
-
+      // Token süresi dolmuşsa otomatik logout
+      if (user?.token && isTokenExpired(user.token)) {
+        await removeStorageItem(USER_KEY);
+        set({ user: null, isAuthenticated: false, isHydrated: true });
         return;
       }
 
       set({
+        user,
+        isAuthenticated: !!user,
         isHydrated: true,
       });
     } catch (error) {
@@ -73,10 +80,18 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       set({
         user: null,
-        token: null,
         isAuthenticated: false,
         isHydrated: true,
       });
     }
+  },
+
+  logout: async () => {
+    await removeStorageItem(USER_KEY);
+
+    set({
+      user: null,
+      isAuthenticated: false,
+    });
   },
 }));

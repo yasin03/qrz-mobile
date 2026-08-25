@@ -7,6 +7,9 @@ export type User = {
   IDSube: string | null;
   IDSubePersonel: string | null;
   IDKullanici: string;
+  token: string;
+
+  Sonuc: string;
 };
 
 export type LoginResponse = {
@@ -19,7 +22,7 @@ export type LoginResponse = {
   IDSube: string | null;
   IDSubePersonel: string | null;
   IDKullanici: string;
-  token?: string;
+  token?: string | null;
 };
 
 export type LoginRequest = {

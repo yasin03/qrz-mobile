@@ -1,9 +1,10 @@
 import axios from "axios";
 
 import { useAuthStore } from "@/stores/auth-store";
+const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
 
 export const api = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL,
+  baseURL: API_URL,
   timeout: 15000,
   headers: {
     "Content-Type": "application/json",
@@ -12,12 +13,30 @@ export const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = useAuthStore.getState().token;
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    console.log("AXIOS:", config.method?.toUpperCase(), config.url);
+
+    const user = useAuthStore.getState().user;
+    if (user?.token) {
+      config.headers.Authorization = `Bearer ${user.token}`;
     }
 
     return config;
   },
-  (error) => Promise.reject(error),
+  (error) => {
+    return Promise.reject(error);
+  },
+);
+
+api.interceptors.response.use(
+  (response) => response,
+
+  async (error) => {
+    if (error.response?.status === 401) {
+      console.log("AXIOS: 401 Unauthorized");
+
+      await useAuthStore.getState().logout();
+    }
+
+    return Promise.reject(error);
+  },
 );

@@ -3,14 +3,14 @@ import {
   DefaultTheme,
   Stack,
   ThemeProvider,
-  usePathname,
   useRouter,
+  useSegments,
 } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { useColorScheme } from "react-native";
 
-import QueryProvider from "@/providers/query-provider";
+import { QueryProvider } from "@/providers/query-provider";
 import { useAuthStore } from "@/stores/auth-store";
 
 SplashScreen.preventAutoHideAsync();
@@ -19,44 +19,42 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   const router = useRouter();
-  const pathname = usePathname();
+  const segments = useSegments();
+
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   const isHydrated = useAuthStore((state) => state.isHydrated);
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   const hydrate = useAuthStore((state) => state.hydrate);
 
-  // SecureStore / localStorage'dan kullanıcıyı oku - sadece mount olduğunda çalış
+  // İlk açılışta SecureStore'dan auth bilgilerini al
   useEffect(() => {
     hydrate();
-  }, []);
+  }, [hydrate]);
 
-  // Authentication kontrolü
   useEffect(() => {
     if (!isHydrated) {
       return;
     }
 
-    const isLoginPage = pathname === "/login";
-    const isProtectedPage = !isLoginPage;
+    const inAuthGroup = segments[0] === "(auth)";
 
-    // Kullanıcı giriş yapmamışsa
-    // ve protected bir sayfadaysa login'e gönder
-    if (!isAuthenticated && isProtectedPage) {
-      router.replace("/login");
+    const inProtectedGroup = segments[0] === "(protected)";
+
+    // Authenticated değil → protected sayfaya girmesin
+    if (!isAuthenticated && inProtectedGroup) {
+      router.replace("/(auth)/login");
       return;
     }
 
-    // Kullanıcı giriş yapmışsa
-    // ve login sayfasındaysa ana sayfaya gönder
-    if (isAuthenticated && isLoginPage) {
+    // Authenticated → login sayfasına girmesin
+    if (isAuthenticated && inAuthGroup) {
       router.replace("/(protected)");
       return;
     }
 
-    // Artık navigation tamam
     SplashScreen.hideAsync();
-  }, [isHydrated, isAuthenticated, pathname]);
+  }, [isHydrated, isAuthenticated, segments]);
 
   if (!isHydrated) {
     return null;
@@ -69,10 +67,7 @@ export default function RootLayout() {
           screenOptions={{
             headerShown: false,
           }}
-        >
-          <Stack.Screen name="(auth)/login" />
-          <Stack.Screen name="(protected)" />
-        </Stack>
+        />
       </ThemeProvider>
     </QueryProvider>
   );
