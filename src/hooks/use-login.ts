@@ -19,7 +19,7 @@ export function useLogin() {
 
     onSuccess: async (data) => {
       console.log("LOGIN RESPONSE:", data);
-      if (data.Sonuc !== "1") {
+      if (data?.Sonuc !== "1") {
         return;
       }
 

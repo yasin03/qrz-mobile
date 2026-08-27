@@ -12,6 +12,7 @@ import { useEffect } from "react";
 import { useColorScheme } from "react-native";
 import { QueryProvider } from "@/providers/query-provider";
 import { useAuthStore } from "@/stores/auth-store";
+import { CustomSplashScreen } from "@/components/splash-screen";
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -21,7 +22,6 @@ export default function RootLayout() {
   const segments = useSegments();
 
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-
   const isHydrated = useAuthStore((state) => state.isHydrated);
 
   const hydrate = useAuthStore((state) => state.hydrate);
@@ -31,13 +31,18 @@ export default function RootLayout() {
     hydrate();
   }, [hydrate]);
 
+  // Native splash'ı JS render edilir edilmez kapat,
+  // yerini custom splash alsın (isHydrated false iken)
+  useEffect(() => {
+    SplashScreen.hideAsync();
+  }, []);
+
   useEffect(() => {
     if (!isHydrated) {
       return;
     }
 
     const inAuthGroup = segments[0] === "(auth)";
-
     const inProtectedGroup = segments[0] === "(protected)";
 
     // Authenticated değil → protected sayfaya girmesin
@@ -51,22 +56,20 @@ export default function RootLayout() {
       router.replace("/(protected)");
       return;
     }
-
-    SplashScreen.hideAsync();
   }, [isHydrated, isAuthenticated, segments]);
-
-  if (!isHydrated) {
-    return null;
-  }
 
   return (
     <QueryProvider>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-          }}
-        />
+        {!isHydrated ? (
+          <CustomSplashScreen />
+        ) : (
+          <Stack
+            screenOptions={{
+              headerShown: false,
+            }}
+          />
+        )}
       </ThemeProvider>
     </QueryProvider>
   );

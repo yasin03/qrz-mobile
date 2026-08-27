@@ -17,7 +17,6 @@ import { Text } from "@/components/ui/text";
 import { useLogin } from "@/hooks/use-login";
 import { loginSchema, type LoginFormValues } from "@/schemas/auth-schema";
 import BottomWave from "@/components/svg/BottomWave";
-import Circles from "@/components/svg/Circles";
 import TopRightDots from "@/components/svg/Dots";
 
 export default function LoginScreen() {
