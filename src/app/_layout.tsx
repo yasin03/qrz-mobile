@@ -1,3 +1,4 @@
+import "@/global.css";
 import {
   DarkTheme,
   DefaultTheme,
@@ -9,10 +10,8 @@ import {
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { useColorScheme } from "react-native";
-
 import { QueryProvider } from "@/providers/query-provider";
 import { useAuthStore } from "@/stores/auth-store";
-
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
