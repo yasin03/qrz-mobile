@@ -10,6 +10,7 @@ import {
   DollarSign,
   QrCode,
   User,
+  ShieldCheck,
 } from "lucide-react-native";
 
 import { Badge } from "@/components/ui/badge";
@@ -75,9 +76,9 @@ export default function PersonnelHomeScreen() {
   const user = useAuthStore((state) => state.user);
 
   return (
-    <View className="flex-1 bg-slate-50">
+    <View className="flex-1 bg-qrz-navy">
       {/* --- Lacivert header --- */}
-      <SafeAreaView edges={["top"]} className="bg-qrz-navy px-6">
+      <SafeAreaView edges={["top"]} className=" px-6">
         <View className="flex-row items-center justify-between mt-4">
           <View className="flex-column gap-1">
             <Text className="text-white">Merhaba,</Text>
@@ -88,6 +89,7 @@ export default function PersonnelHomeScreen() {
               variant="secondary"
               className="bg-blue-500 dark:bg-blue-600 self-start"
             >
+              <ShieldCheck size={13} color="white" />
               <Text className="text-white text-sm">
                 {user?.KullaniciTipi ?? "Personel"}
               </Text>
@@ -106,7 +108,7 @@ export default function PersonnelHomeScreen() {
         <View className="h-16" />
       </SafeAreaView>
 
-      <View className="flex-1 bg-slate-50 rounded-t-3xl -mt-6 pt-6">
+      <View className="flex-1 bg-slate-50 rounded-t-3xl  pt-6">
         <ScrollView
           className="flex-1"
           contentContainerClassName="pb-8"

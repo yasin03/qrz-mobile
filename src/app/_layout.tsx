@@ -13,6 +13,7 @@ import { useColorScheme } from "react-native";
 import { QueryProvider } from "@/providers/query-provider";
 import { useAuthStore } from "@/stores/auth-store";
 import { CustomSplashScreen } from "@/components/splash-screen";
+
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
