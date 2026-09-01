@@ -8,8 +8,6 @@ export type User = {
   IDSubePersonel: string | null;
   IDKullanici: string;
   token: string;
-
-  Sonuc: string;
 };
 
 export type LoginResponse = {

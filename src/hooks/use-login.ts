@@ -1,7 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 
-import { api } from "@/lib/axios";
+import { api, ApiClientError } from "@/lib/axios";
 import { useAuthStore } from "@/stores/auth-store";
+import type { User } from "@/types/auth";
 
 type LoginRequest = {
   username: string;
@@ -12,19 +13,23 @@ export function useLogin() {
   const setAuth = useAuthStore((state) => state.setAuth);
 
   return useMutation({
-    mutationFn: async (values: LoginRequest) => {
-      const response = await api.post("/api/auth", values);
-      return response.data;
-    },
+    mutationFn: async (values: LoginRequest): Promise<User> => {
+      const response = await api.post<User>("/api/auth", values);
+      const user = response.data as User | null;
 
-    onSuccess: async (data) => {
-      console.log("LOGIN RESPONSE:", data);
-      if (data?.Sonuc !== "1") {
-        return;
+      if (!user || !user.token || !user.IDKullanici) {
+        throw new ApiClientError(
+          "Gecersiz login yaniti alindi.",
+          response.status,
+          "INVALID_LOGIN_RESPONSE",
+          response.data,
+        );
       }
 
-      const { Sonuc, ...user } = data;
+      return user;
+    },
 
+    onSuccess: async (user) => {
       await setAuth(user);
     },
 

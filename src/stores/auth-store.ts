@@ -21,7 +21,34 @@ type AuthState = {
 
 const USER_KEY = "qrz_user";
 
-function isTokenExpired(token: string): boolean {
+function decodeBase64(base64: string): string {
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+  let str = base64.replace(/=+$/, "");
+  let output = "";
+  let bc = 0;
+  let bs = 0;
+  let buffer: number;
+  let idx = 0;
+
+  while ((buffer = str.charCodeAt(idx++))) {
+    const charIndex = chars.indexOf(String.fromCharCode(buffer));
+    if (charIndex < 0) {
+      continue;
+    }
+
+    bs = bc % 4 ? bs * 64 + charIndex : charIndex;
+    bc += 1;
+
+    if (bc % 4) {
+      output += String.fromCharCode(255 & (bs >> ((-2 * bc) & 6)));
+    }
+  }
+
+  return output;
+}
+
+export function isTokenExpired(token: string): boolean {
   try {
     const parts = token.split(".");
     if (parts.length !== 3) return true;
@@ -31,7 +58,10 @@ function isTokenExpired(token: string): boolean {
       base64.length + ((4 - (base64.length % 4)) % 4),
       "=",
     );
-    const decoded = atob(padded);
+    const decoded =
+      typeof globalThis.atob === "function"
+        ? globalThis.atob(padded)
+        : decodeBase64(padded);
     const payload = JSON.parse(decoded) as { exp?: number };
 
     if (!payload.exp) return true;
@@ -49,6 +79,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   isHydrated: false,
 
   setAuth: async (user) => {
+    if (!user || !user.token) {
+      throw new Error("Invalid user payload for setAuth");
+    }
+
     await setStorageItem(USER_KEY, JSON.stringify(user));
 
     set({
@@ -62,6 +96,13 @@ export const useAuthStore = create<AuthState>((set) => ({
       const userJson = await getStorageItem(USER_KEY);
 
       const user = userJson ? (JSON.parse(userJson) as User) : null;
+
+      // Eski kayitlardan token'siz user kaldiysa oturumu gecersiz say.
+      if (user && !user.token) {
+        await removeStorageItem(USER_KEY);
+        set({ user: null, isAuthenticated: false, isHydrated: true });
+        return;
+      }
 
       // Token süresi dolmuşsa otomatik logout
       if (user?.token && isTokenExpired(user.token)) {

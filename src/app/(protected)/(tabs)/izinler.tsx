@@ -9,7 +9,6 @@ const Izinler =  () => {
   useEffect(() => {
     const fetchDeviceInfo = async () => {
       const deviceInfo = await getDeviceInfo();
-      console.log("DEVICE INFO:", deviceInfo);
     };
 
     fetchDeviceInfo();

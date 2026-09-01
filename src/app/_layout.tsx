@@ -54,7 +54,7 @@ export default function RootLayout() {
 
     // Authenticated → login sayfasına girmesin
     if (isAuthenticated && inAuthGroup) {
-      router.replace("/(protected)");
+      router.replace("/(protected)/(tabs)");
       return;
     }
   }, [isHydrated, isAuthenticated, segments]);

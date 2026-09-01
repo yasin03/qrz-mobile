@@ -131,7 +131,7 @@ const Profile = () => {
 
         <View>
           <Text className="mt-4 text-lg font-semibold text-white">
-            {user.Ad}
+            {user?.Ad}
           </Text>
           <Badge
             variant="secondary"
@@ -159,12 +159,12 @@ const Profile = () => {
           <InfoRow
             icon={<Building2 size={16} color="#64748b" />}
             label="Şirket No"
-            value={user.IDSirket}
+            value={user?.IDSirket}
           />
           <InfoRow
             icon={<Building2 size={16} color="#64748b" />}
             label="Şube No"
-            value={user.IDSube}
+            value={user?.IDSube}
             isLast
           />
         </SectionCard>
