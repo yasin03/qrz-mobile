@@ -1,16 +1,12 @@
+import { FormInput } from "@/components/form/form-input";
+import { FormSelect } from "@/components/form/form-select";
+import { FormSwitch } from "@/components/form/form-switch";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Text } from "@/components/ui/text";
 import { useBolumler } from "@/hooks/use-kurumsal";
+import { useCreateLokasyon } from "@/hooks/use-lokasyonlar";
 import { usePermissions } from "@/hooks/use-permissions";
-import { useAuthStore } from "@/stores/auth-store";
+import { ApiClientError } from "@/lib/axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as Location from "expo-location";
 import { useRouter } from "expo-router";
@@ -24,6 +20,8 @@ const locationSchema = z.object({
   latitude: z.string().min(1, "Enlem alınamadı"),
   longitude: z.string().min(1, "Boylam alınamadı"),
   idBolum: z.string().min(1, "Bölüm seçilmedi"),
+  locationName: z.string().min(1, "Konum adı girilmedi"),
+  status: z.boolean(),
 });
 
 type LocationFormValues = z.infer<typeof locationSchema>;
@@ -33,6 +31,7 @@ const Save = () => {
   const { ensurePermissions } = usePermissions();
   const [isFetchingLocation, setIsFetchingLocation] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const createLokasyon = useCreateLokasyon();
 
   const {
     data: bolumler,
@@ -47,7 +46,13 @@ const Save = () => {
     formState: { errors },
   } = useForm<LocationFormValues>({
     resolver: zodResolver(locationSchema),
-    defaultValues: { idBolum: "", latitude: "", longitude: "" },
+    defaultValues: {
+      idBolum: "",
+      latitude: "",
+      longitude: "",
+      locationName: "",
+      status: true,
+    },
   });
 
   useEffect(() => {
@@ -79,10 +84,29 @@ const Save = () => {
   }, []);
 
   const onSubmit = (data: LocationFormValues) => {
-    Alert.alert(
-      "Konum Bilgisi",
-      `Bölüm ID: ${data.idBolum}\nEnlem: ${data.latitude}\nBoylam: ${data.longitude}`,
-      [{ text: "Tamam", onPress: () => router.back() }],
+    createLokasyon.mutate(
+      {
+        IDBolum: Number(data.idBolum),
+        LokasyonAdi: data.locationName,
+        Enlem: Number(data.latitude),
+        Boylam: Number(data.longitude),
+        Aktif: data.status,
+      },
+      {
+        onSuccess: () => {
+          Alert.alert("Başarılı", "Konum kaydedildi.", [
+            { text: "Tamam", onPress: () => router.back() },
+          ]);
+        },
+        onError: (error) => {
+          console.error("CREATE LOKASYON ERROR:", error);
+          const message =
+            error instanceof ApiClientError
+              ? error.message
+              : "Konum kaydedilirken bir hata oluştu.";
+          Alert.alert("Hata", message);
+        },
+      },
     );
   };
 
@@ -90,99 +114,55 @@ const Save = () => {
     <SafeAreaView className="flex-1 bg-white">
       <View className="flex-1 gap-4 px-6 pt-4">
         <Text className="text-lg font-medium text-qrz-navy">Konum Kaydet</Text>
-        <Text className="text-lg font-medium text-qrz-navy">{bolumler && bolumler[0]?.BolumAdi}</Text>
 
         {isFetchingLocation ? (
           <Text>Konum alınıyor...</Text>
         ) : errorMsg ? (
           <Text className="text-red-500">{errorMsg}</Text>
         ) : null}
+        <FormSelect
+          control={control}
+          name="idBolum"
+          label="Bölüm"
+          vertical
+          isLoading={isBolumlerLoading}
+          options={
+            bolumler?.map((b) => ({
+              value: String(b.IDBolum),
+              label: b.BolumAdi,
+            })) ?? []
+          }
+        />
 
-        <View className="gap-2">
-          <Text className="text-sm font-medium text-qrz-navy">Bölüm</Text>
-          <Controller
-            control={control}
-            name="idBolum"
-            render={({ field: { value, onChange } }) => (
-              <Select
-                value={
-                  value
-                    ? {
-                        value,
-                        label:
-                          bolumler?.find((b) => String(b.IDBolum) === value)
-                            ?.BolumAdi ?? "",
-                      }
-                    : undefined
-                }
-                onValueChange={(option) => onChange(option?.value ?? "")}
-              >
-                <SelectTrigger
-                 
-                >
-                  <SelectValue
-                    placeholder={
-                      !hasBolumler && isBolumlerLoading
-                        ? "Bölümler yükleniyor..."
-                        : !hasBolumler && isBolumlerError
-                          ? "Bölümler yüklenemedi"
-                          : "Bölüm seçiniz"
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {bolumler?.map((bolum) => (
-                    <SelectItem
-                      key={bolum.IDBolum}
-                      label={bolum.BolumAdi}
-                      value={String(bolum.IDBolum)}
-                    />
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-          {errors.idBolum && (
-            <Text className="text-xs text-red-500">
-              {errors.idBolum.message}
-            </Text>
-          )}
-        </View>
+        <FormInput
+          control={control}
+          name="locationName"
+          label="Lokasyon Adı"
+          vertical
+        />
 
-        <View className="gap-2">
-          <Text className="text-sm font-medium text-qrz-navy">Enlem</Text>
-          <Controller
-            control={control}
-            name="latitude"
-            render={({ field: { value } }) => (
-              <Input editable={false} value={value} placeholder="Enlem" />
-            )}
-          />
-          {errors.latitude && (
-            <Text className="text-xs text-red-500">
-              {errors.latitude.message}
-            </Text>
-          )}
-        </View>
+        <FormSwitch control={control} name="status" label="Durum" vertical />
 
-        <View className="gap-2">
-          <Text className="text-sm font-medium text-qrz-navy">Boylam</Text>
-          <Controller
-            control={control}
-            name="longitude"
-            render={({ field: { value } }) => (
-              <Input editable={false} value={value} placeholder="Boylam" />
-            )}
-          />
-          {errors.longitude && (
-            <Text className="text-xs text-red-500">
-              {errors.longitude.message}
-            </Text>
-          )}
-        </View>
+        <FormInput
+          control={control}
+          name="latitude"
+          label="Enlem"
+          disabled
+          vertical
+        />
+        <FormInput
+          control={control}
+          name="longitude"
+          label="Boylam"
+          disabled
+          vertical
+        />
 
-        <Button onPress={handleSubmit(onSubmit)} disabled={isFetchingLocation}>
-          <Text>Kaydet</Text>
+        <Button
+          onPress={handleSubmit(onSubmit)}
+          disabled={isFetchingLocation || createLokasyon.isPending}
+        >
+          <Text>{createLokasyon.isPending ? "Kaydediliyor..." : "Kaydet"}</Text>
         </Button>
       </View>
     </SafeAreaView>

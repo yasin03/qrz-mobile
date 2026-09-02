@@ -13,7 +13,7 @@ import { useColorScheme } from "react-native";
 import { QueryProvider } from "@/providers/query-provider";
 import { useAuthStore } from "@/stores/auth-store";
 import { CustomSplashScreen } from "@/components/splash-screen";
-
+import { PortalHost } from "@rn-primitives/portal";
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -60,18 +60,23 @@ export default function RootLayout() {
   }, [isHydrated, isAuthenticated, segments]);
 
   return (
-    <QueryProvider>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        {!isHydrated ? (
-          <CustomSplashScreen />
-        ) : (
-          <Stack
-            screenOptions={{
-              headerShown: false,
-            }}
-          />
-        )}
-      </ThemeProvider>
-    </QueryProvider>
+    <>
+      <QueryProvider>
+        <ThemeProvider
+          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+        >
+          {!isHydrated ? (
+            <CustomSplashScreen />
+          ) : (
+            <Stack
+              screenOptions={{
+                headerShown: false,
+              }}
+            />
+          )}
+          <PortalHost />
+        </ThemeProvider>
+      </QueryProvider>
+    </>
   );
 }

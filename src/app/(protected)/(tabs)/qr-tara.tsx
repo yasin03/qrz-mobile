@@ -1,6 +1,8 @@
+import { Can } from "@/components/can";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { usePermissions } from "@/hooks/use-permissions";
+import { ROLE_GROUPS } from "@/lib/user-types";
 import { useRouter } from "expo-router";
 import { Locate, LocationEdit } from "lucide-react-native";
 import { useEffect, useState } from "react";
@@ -26,9 +28,11 @@ const QRTara = () => {
 
   return (
     <View className="flex-1 items-center justify-center">
-      <Button variant="ghost" onPress={handleNewPagePress}>
-        <LocationEdit size={24} />
-      </Button>
+      <Can roles={ROLE_GROUPS.ADMIN_VE_YONETICI}>
+        <Button variant="ghost" onPress={handleNewPagePress}>
+          <LocationEdit size={24} />
+        </Button>
+      </Can>
       <Text className="text-lg font-medium text-qrz-navy">QR-Tara</Text>
       <Text className=" font-medium text-qrz-navy">
         {permissionsGranted

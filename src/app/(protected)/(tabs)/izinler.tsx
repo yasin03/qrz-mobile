@@ -48,9 +48,6 @@ const Izinler =  () => {
   return (
     <View className="flex-1 items-center justify-center bg-white">
       <Text className="text-lg font-medium text-qrz-navy">İzinler</Text>
-      <Text className="text-lg font-medium text-qrz-navy px-4">
-        {JSON.stringify(Device)}
-      </Text>
     </View>
   );
 };

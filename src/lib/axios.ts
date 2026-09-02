@@ -35,10 +35,7 @@ export const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    console.log("AXIOS:", config.method?.toUpperCase(), config.url);
-
     const user = useAuthStore.getState().user;
-    console.log("AXIOS: user from store", user);
     if (user?.token) {
       config.headers.Authorization = `Bearer ${user.token}`;
     }
