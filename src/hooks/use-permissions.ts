@@ -1,7 +1,7 @@
-import { useCameraPermissions } from 'expo-camera';
-import { useForegroundPermissions } from 'expo-location';
-import { Linking, Alert, AppState } from 'react-native';
-import { useEffect, useCallback } from 'react';
+import { useCameraPermissions } from "expo-camera";
+import { useForegroundPermissions } from "expo-location";
+import { Linking, Alert, AppState } from "react-native";
+import { useEffect, useCallback } from "react";
 
 export function usePermissions() {
   const [cameraPerm, requestCamera] = useCameraPermissions();
@@ -10,13 +10,14 @@ export function usePermissions() {
   // Uygulama foreground'a dönünce izinleri tazele
   // (kullanıcı Ayarlar'dan değiştirmiş olabilir)
   useEffect(() => {
-    const sub = AppState.addEventListener('change', (state) => {
-      if (state === 'active') {
-        cameraPerm?.status; // yeniden fetch tetiklenir (hook zaten refresh eder)
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "active") {
+        requestCamera();
+        requestLocation();
       }
     });
     return () => sub.remove();
-  }, []);
+  }, [requestCamera, requestLocation]);
 
   const ensurePermissions = useCallback(async (): Promise<boolean> => {
     let cam = cameraPerm;
@@ -39,16 +40,16 @@ export function usePermissions() {
     if (!cam?.granted || !loc?.granted) {
       const blocked = cam?.canAskAgain === false || loc?.canAskAgain === false;
       Alert.alert(
-        'İzin Gerekli',
+        "İzin Gerekli",
         blocked
-          ? 'QR okutabilmek için kamera ve konum izinlerini Ayarlar üzerinden açmalısınız.'
-          : 'PDKS kaydı oluşturmak için kamera ve konum izni vermeniz gerekiyor.',
+          ? "QR okutabilmek için kamera ve konum izinlerini Ayarlar üzerinden açmalısınız."
+          : "PDKS kaydı oluşturmak için kamera ve konum izni vermeniz gerekiyor.",
         blocked
           ? [
-              { text: 'Vazgeç', style: 'cancel' },
-              { text: 'Ayarlara Git', onPress: () => Linking.openSettings() },
+              { text: "Vazgeç", style: "cancel" },
+              { text: "Ayarlara Git", onPress: () => Linking.openSettings() },
             ]
-          : [{ text: 'Tamam' }]
+          : [{ text: "Tamam" }],
       );
       return false;
     }
