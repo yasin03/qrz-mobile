@@ -64,8 +64,6 @@ api.interceptors.response.use(
         ),
       );
     }
-
-    // Eski/farkli formatta donen response'lar (ornegin auth henuz eski formatta ise) oldugu gibi gecer
     return response;
   },
 

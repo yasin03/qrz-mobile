@@ -7,7 +7,9 @@ export type User = {
   IDSube: string | null;
   IDSubePersonel: string | null;
   IDKullanici: string;
+  IDDevice: string | null;
   token: string;
+  message?: string;
 };
 
 export type LoginResponse = {

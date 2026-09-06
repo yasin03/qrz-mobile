@@ -1,8 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
-
+import { getDeviceId } from "@/lib/device";
 import { api, ApiClientError } from "@/lib/axios";
 import { useAuthStore } from "@/stores/auth-store";
 import type { User } from "@/types/auth";
+import { Alert } from "react-native";
 
 type LoginRequest = {
   username: string;
@@ -14,9 +15,14 @@ export function useLogin() {
 
   return useMutation({
     mutationFn: async (values: LoginRequest): Promise<User> => {
-      const response = await api.post<User>("/api/auth", values);
-      const user = response.data as User | null;
+      const idDevice = await getDeviceId();
+      const response = await api.post<User>("/api/auth", {
+        ...values,
+        idDevice,
+      });
 
+      console.log("LOGIN RESPONSE:", response);
+      const user = response.data as User | null;
       if (!user || !user.token || !user.IDKullanici) {
         throw new ApiClientError(
           "Gecersiz login yaniti alindi.",
@@ -31,10 +37,19 @@ export function useLogin() {
 
     onSuccess: async (user) => {
       await setAuth(user);
+      if (user.message) {
+        Alert.alert("Bilgi", user.message);
+      }
     },
 
     onError: (error) => {
       console.error("LOGIN ERROR:", error);
+      const message =
+        error instanceof ApiClientError
+          ? error.message
+          : "Giriş yapılamadı. Lütfen tekrar deneyin.";
+
+      Alert.alert("Hata", message);
     },
   });
 }

@@ -29,26 +29,84 @@ const QRTara = () => {
 
   const handleNewPagePress = () => router.push("/(protected)/location");
 
+  const pdksMutation = {
+    mutate: async (data: {
+      idBolumLokasyon: number;
+      idBolum: number;
+      enlem: number;
+      boylam: number;
+      kullaniciEnlem: number;
+      kullaniciBoylam: number;
+    }) => {
+      try {
+        const response = await fetch(
+          "https://api.example.com/pdks-kayit", // Replace with your actual API endpoint
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error("PDKS kaydı oluşturulamadı.");
+        }
+
+        Alert.alert("Başarılı", "PDKS kaydı başarıyla oluşturuldu.");
+      } catch (error) {
+        Alert.alert("Hata", (error as Error).message);
+      }
+    },
+  };
+
+  function parseQrPayload(qrText: string) {
+    const [idBolumLokasyon, idBolum, enlem, boylam] = qrText.split("|");
+    return {
+      idBolumLokasyon: Number(idBolumLokasyon),
+      idBolum: Number(idBolum),
+      enlem: Number(enlem),
+      boylam: Number(boylam),
+    };
+  }
+
+  function getDistanceInMeters(
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number,
+  ) {
+    const R = 6371000; // dünya yarıçapı (metre)
+    const toRad = (deg: number) => (deg * Math.PI) / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  const MAX_DISTANCE_METERS = 100; // toleransı projene göre ayarla
+
   const handleBarcodeScanned = async (result: BarcodeScanningResult) => {
     if (scanLockRef.current || isProcessing) return;
     scanLockRef.current = true;
     setIsProcessing(true);
 
     try {
-      let qrLat: number | null = null;
-      let qrLon: number | null = null;
+      const { idBolumLokasyon, idBolum, enlem, boylam } = parseQrPayload(
+        result.data,
+      );
 
-      try {
-        const parsed = JSON.parse(result.data);
-        qrLat = parsed.lat ?? parsed.latitude ?? null;
-        qrLon = parsed.lon ?? parsed.lng ?? parsed.longitude ?? null;
-      } catch {
+      if (
+        !idBolumLokasyon ||
+        !idBolum ||
+        Number.isNaN(enlem) ||
+        Number.isNaN(boylam)
+      ) {
         Alert.alert("Hata", "QR kod okunamadı veya format geçersiz.");
-        return;
-      }
-
-      if (qrLat === null || qrLon === null) {
-        Alert.alert("Hata", "QR kodda konum bilgisi bulunamadı.");
         return;
       }
 
@@ -56,16 +114,42 @@ const QRTara = () => {
         accuracy: Location.Accuracy.High,
       });
 
-      Alert.alert(
-        "QR Okundu",
-        `QR Konum: ${qrLat}, ${qrLon}\n` +
-          `Mevcut Konum: ${position.coords.latitude}, ${position.coords.longitude}`,
-        [{ text: "Tamam", onPress: () => { scanLockRef.current = false; } }]
+      // Android'de sahte konum (mock location) kontrolü — güvenlik için önerilir
+      if (position.mocked) {
+        Alert.alert("Hata", "Sahte konum tespit edildi. Kayıt oluşturulamaz.");
+        return;
+      }
+
+      const distance = getDistanceInMeters(
+        enlem,
+        boylam,
+        position.coords.latitude,
+        position.coords.longitude,
       );
+
+      if (distance > MAX_DISTANCE_METERS) {
+        Alert.alert(
+          "Konum Uyuşmuyor",
+          `Bulunduğunuz konum, QR kodun bulunduğu konumdan ${Math.round(
+            distance,
+          )} metre uzakta. PDKS kaydı oluşturulamadı.`,
+        );
+        return;
+      }
+      Alert.alert("Başarılı", "Konum doğrulandı. PDKS kaydı oluşturuluyor...");
+      // PDKS kaydı için mutation tetikleme
+/*       pdksMutation.mutate({
+        idBolumLokasyon,
+        idBolum,
+        enlem,
+        boylam,
+        kullaniciEnlem: position.coords.latitude,
+        kullaniciBoylam: position.coords.longitude,
+      }); */
     } catch {
-      Alert.alert("Hata", "Konum alınamadı.");
-      scanLockRef.current = false;
+      Alert.alert("Hata", "Konum alınamadı veya QR işlenemedi.");
     } finally {
+      scanLockRef.current = false;
       setIsProcessing(false);
     }
   };
@@ -78,7 +162,9 @@ const QRTara = () => {
             style={{ flex: 1 }}
             facing="back"
             barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
-            onBarcodeScanned={scanLockRef.current ? undefined : handleBarcodeScanned}
+            onBarcodeScanned={
+              scanLockRef.current ? undefined : handleBarcodeScanned
+            }
           />
 
           {/* Admin/yönetici için sağ üstte overlay buton */}
@@ -99,7 +185,10 @@ const QRTara = () => {
 
           {/* Scan frame overlay */}
           <View className="absolute inset-0 items-center justify-center">
-            <View style={{ width: SCAN_FRAME_SIZE, height: SCAN_FRAME_SIZE }} className="relative">
+            <View
+              style={{ width: SCAN_FRAME_SIZE, height: SCAN_FRAME_SIZE }}
+              className="relative"
+            >
               <View className="absolute top-0 left-0 w-10 h-10 border-t-4 border-l-4 border-white rounded-tl-2xl" />
               <View className="absolute top-0 right-0 w-10 h-10 border-t-4 border-r-4 border-white rounded-tr-2xl" />
               <View className="absolute bottom-0 left-0 w-10 h-10 border-b-4 border-l-4 border-white rounded-bl-2xl" />
@@ -109,7 +198,9 @@ const QRTara = () => {
 
           <View className="absolute bottom-10 left-0 right-0 items-center">
             <Text className="text-white text-base font-medium">
-              {isProcessing ? "İşleniyor..." : "QR kodu çerçeve içine hizalayın"}
+              {isProcessing
+                ? "İşleniyor..."
+                : "QR kodu çerçeve içine hizalayın"}
             </Text>
           </View>
         </View>
