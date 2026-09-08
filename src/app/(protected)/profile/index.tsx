@@ -12,6 +12,7 @@ import {
   Smartphone,
   ShieldCheck,
   ChevronRight,
+  Bell,
 } from "lucide-react-native";
 import { useAuthStore } from "@/stores/auth-store";
 import { Badge } from "@/components/ui/badge";
@@ -27,14 +28,14 @@ function getInitials(name?: string) {
 
 function ScanFrameAvatar({ initials }: { initials: string }) {
   return (
-    <View className="relative h-24 w-24 items-center justify-center">
+    <View className="relative h-20 w-20 items-center justify-center">
       {/* Köşe parantezleri — QR tarayıcı viewfinder imzası */}
       <View className="absolute -top-1.5 -left-1.5 h-5 w-5 rounded-tl-lg border-l-2 border-t-2 border-blue-400" />
       <View className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-tr-lg border-r-2 border-t-2 border-blue-400" />
       <View className="absolute -bottom-1.5 -left-1.5 h-5 w-5 rounded-bl-lg border-b-2 border-l-2 border-blue-400" />
       <View className="absolute -bottom-1.5 -right-1.5 h-5 w-5 rounded-br-lg border-b-2 border-r-2 border-blue-400" />
 
-      <View className="h-[76px] w-[76px] items-center justify-center rounded-full bg-white/10">
+      <View className="h-[65px] w-[65px] items-center justify-center rounded-full bg-white/10">
         <Text className="text-2xl font-bold text-white">{initials}</Text>
       </View>
 
@@ -96,7 +97,7 @@ function SectionCard({
   );
 }
 
-const Profile = () => {
+const Index = () => {
   const insets = useSafeAreaInsets();
   const logout = useAuthStore((state) => state.logout);
   const user = useAuthStore((state) => state.user);
@@ -124,12 +125,12 @@ const Profile = () => {
     <View className="flex-1 bg-qrz-navy">
       {/* Navy başlık — status bar'a kadar tam bleed */}
       <View
-        style={{ paddingTop: insets.top + 20 }}
-        className="flex-row items-center p-10 gap-10"
+        style={{ paddingTop: insets.top + 30 }}
+        className="flex-row items-center p-10 gap-6"
       >
         <ScanFrameAvatar initials={initials} />
 
-        <View>
+        <View className="flex-1">
           <Text className="mt-4 text-lg font-semibold text-white">
             {user?.Ad}
           </Text>
@@ -143,6 +144,13 @@ const Profile = () => {
             </Text>
           </Badge>
         </View>
+
+        <TouchableOpacity onPress={() => alert("Bildirimler")}>
+          <Bell size={24} color="white" />
+          <Text className="absolute -top-1 -right-1 text-xs text-white font-bold bg-red-500 rounded-full w-4 h-4 text-center">
+            3
+          </Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -208,4 +216,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default Index;

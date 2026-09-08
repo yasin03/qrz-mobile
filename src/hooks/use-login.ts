@@ -37,7 +37,7 @@ export function useLogin() {
 
     onSuccess: async (user) => {
       await setAuth(user);
-      if (user.message) {
+      if (user.message != "IDDevice dogru ve eslesiyor") {
         Alert.alert("Bilgi", user.message);
       }
     },

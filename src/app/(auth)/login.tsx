@@ -9,6 +9,7 @@ import {
   Pressable,
   View,
   Image,
+  ScrollView,
 } from "react-native";
 
 import { Button } from "@/components/ui/button";
@@ -18,10 +19,10 @@ import { useLogin } from "@/hooks/use-login";
 import { loginSchema, type LoginFormValues } from "@/schemas/auth-schema";
 import BottomWave from "@/components/svg/BottomWave";
 import TopRightDots from "@/components/svg/Dots";
+import { FormInput } from "@/components/form/form-input";
 
 export default function LoginScreen() {
   const loginMutation = useLogin();
-
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -30,10 +31,7 @@ export default function LoginScreen() {
     formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: {
-      username: "",
-      password: "",
-    },
+    defaultValues: { username: "", password: "" },
   });
 
   const onSubmit = (values: LoginFormValues) => {
@@ -43,10 +41,16 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView
       className="flex-1 bg-white"
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 24}
     >
       <TopRightDots />
-      <View className="flex-1 justify-center px-6">
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        className="px-6"
+      >
         {/* Logo */}
         <View className="mb-10 items-center">
           <Image
@@ -58,92 +62,39 @@ export default function LoginScreen() {
             <Text className="text-5xl font-bold text-qrz-navy">QR</Text>
             <Text className="text-5xl font-medium text-qrz-blue">Zaman</Text>
           </View>
-
-          <Text className="mt-2 text-center text-sm text-slate-500 ">
+          <Text className="mt-2 text-center text-sm text-slate-500">
             PERSONEL TAKİBİNİN AKILLI YOLU
           </Text>
         </View>
 
-        {/* Username */}
-        <View className="mb-5">
-          <Text className="mb-2 font-medium text-qrz-navy">
-            Kullanıcı Adı veya Telefon Numarası
-          </Text>
-
-          <Controller
+        <View className="flex-col gap-4">
+          <FormInput
             control={control}
             name="username"
-            render={({ field }) => (
-              <Input
-                containerClassName="h-14 rounded-xl border-slate-200 bg-slate-50 px-4"
-                placeholder="Kulllanıcı adı girin"
-                autoCapitalize="none"
-                autoCorrect={false}
-                value={field.value}
-                onChangeText={field.onChange}
-                onBlur={field.onBlur}
-                startIcon={<User size={20} color="#64748B" />}
-              />
-            )}
+            label="Kullanıcı Adı veya Telefon Numarası"
+            placeholder="Kullanıcı adı girin"
+            startIcon={<User size={20} color="#64748B" />}
           />
-
-          {errors.username && (
-            <Text className="mt-1.5 text-sm text-red-500">
-              {errors.username.message}
-            </Text>
-          )}
-        </View>
-
-        {/* Password */}
-        <View className="mb-6">
-          <Text className="mb-2 font-medium text-qrz-navy">Şifre</Text>
-
-          <Controller
+          <FormInput
             control={control}
             name="password"
-            render={({ field }) => (
-              <Input
-                containerClassName="h-14 rounded-xl border-slate-200 bg-slate-50 px-4"
-                placeholder="Şifrenizi girin"
-                secureTextEntry={!showPassword}
-                value={field.value}
-                onChangeText={field.onChange}
-                onBlur={field.onBlur}
-                startIcon={<Lock size={20} color="#64748B" />}
-                endIcon={
-                  <Pressable
-                    hitSlop={10}
-                    onPress={() => setShowPassword((value) => !value)}
-                  >
-                    {showPassword ? (
-                      <EyeOff size={22} color="#64748B" />
-                    ) : (
-                      <Eye size={22} color="#64748B" />
-                    )}
-                  </Pressable>
-                }
-              />
-            )}
+            label="Şifre"
+            placeholder="Şifrenizi girin"
+            type="password"
+            startIcon={<Lock size={20} color="#64748B" />}
           />
-
-          {errors.password && (
-            <Text className="mt-1.5 text-sm text-red-500">
-              {errors.password.message}
+          <Pressable
+            className="mb-6 flex-row justify-end"
+            onPress={() =>
+              alert("Şifremi Unuttum sayfası en kısa zamanda eklenecektir.")
+            }
+          >
+            <Text className="text-sm font-medium text-qrz-blue">
+              Şifremi Unuttum
             </Text>
-          )}
+          </Pressable>
         </View>
-        <Pressable
-          className="mb-6 flex-row justify-end"
-          onPress={() =>
-            alert("Şifremi Unuttum sayfası en kısa zamanda eklenecektir.")
-          }
-        >
-          <Text className="text-sm font-medium text-qrz-blue">
-            Şifremi Unuttum
-          </Text>
-        </Pressable>
 
-        {/* Login */}
         <Button
           className="h-14 rounded-xl bg-qrz-blue"
           disabled={loginMutation.isPending}
@@ -154,7 +105,6 @@ export default function LoginScreen() {
           ) : (
             <View className="flex-row items-center gap-2">
               <LogIn size={19} color="#FFFFFF" />
-
               <Text className="text-base font-semibold text-white">
                 Giriş Yap
               </Text>
@@ -162,18 +112,16 @@ export default function LoginScreen() {
           )}
         </Button>
 
-        {/* Error */}
         {loginMutation.isError && (
           <Text className="mt-4 text-center text-sm text-red-500">
             Kullanıcı adı veya şifre hatalı.
           </Text>
         )}
 
-        {/* Footer */}
         <Text className="mt-10 text-center text-xs text-slate-400">
           QR Zaman • Personel Yönetim Sistemi
         </Text>
-      </View>
+      </ScrollView>
 
       <BottomWave />
     </KeyboardAvoidingView>

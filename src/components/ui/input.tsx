@@ -1,5 +1,5 @@
 import * as React from "react";
-import { View, TextInput, Platform } from "react-native";
+import { View, TextInput, Platform, useColorScheme } from "react-native";
 import { cn } from "@/lib/utils";
 
 type InputProps = React.ComponentProps<typeof TextInput> & {
@@ -9,13 +9,17 @@ type InputProps = React.ComponentProps<typeof TextInput> & {
 };
 
 const Input = React.forwardRef<TextInput, InputProps>(
-  ({ className, containerClassName, startIcon, endIcon, editable, ...props }, ref) => {
+  (
+    { className, containerClassName, startIcon, endIcon, editable, ...props },
+    ref,
+  ) => {
+    const colorScheme = useColorScheme();
     return (
       <View
         className={cn(
           "border-input bg-background dark:bg-input/30 h-10 w-full flex-row items-center rounded-md border px-3 shadow-sm shadow-black/5 sm:h-9",
           editable === false && "opacity-50",
-          containerClassName
+          containerClassName,
         )}
       >
         {startIcon ? <View className="mr-2">{startIcon}</View> : null}
@@ -30,15 +34,16 @@ const Input = React.forwardRef<TextInput, InputProps>(
               web: "outline-none placeholder:text-muted-foreground md:text-sm",
               native: "",
             }),
-            className
+            className,
           )}
+          placeholderTextColor={colorScheme === "dark" ? "#94a3b8" : "#64748B"}
           {...props}
         />
 
         {endIcon ? <View className="ml-2">{endIcon}</View> : null}
       </View>
     );
-  }
+  },
 );
 Input.displayName = "Input";
 

@@ -6,6 +6,7 @@ import { Eye, EyeOff } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import { Controller, type Control, type FieldPath, type FieldValues } from "react-hook-form";
 import { Pressable, View, type KeyboardTypeOptions } from "react-native";
+import type { ReactNode } from "react";
 
 import { Field } from "./field";
 
@@ -45,6 +46,7 @@ type FormInputProps<T extends FieldValues> = {
   className?: string;
   maxLength?: number;
   vertical?: boolean;
+  startIcon?: ReactNode; // eklendi
 };
 
 export function FormInput<T extends FieldValues>({
@@ -60,6 +62,7 @@ export function FormInput<T extends FieldValues>({
   className,
   maxLength,
   vertical = false,
+  startIcon, // eklendi
 }: FormInputProps<T>) {
   const isPassword = type === "password";
   const isMoney = format === "money";
@@ -78,6 +81,7 @@ export function FormInput<T extends FieldValues>({
             onBlur={onBlur}
             placeholder={placeholder}
             disabled={disabled}
+            startIcon={startIcon}
           />
         ) : (
           <View className="relative">
@@ -95,6 +99,7 @@ export function FormInput<T extends FieldValues>({
               numberOfLines={isTextarea ? 4 : undefined}
               keyboardType={FORMAT_KEYBOARD[format!] ?? TYPE_KEYBOARD[type]}
               maxLength={FORMAT_MAXLENGTH[format!] ?? maxLength}
+              startIcon={startIcon}
               className={cn(isPassword && "pr-10", isTextarea && "h-24 py-2")}
             />
             {isPassword && (
@@ -132,12 +137,14 @@ function MoneyInput({
   onBlur,
   placeholder,
   disabled,
+  startIcon,
 }: {
   value: string;
   onChange: (v: string) => void;
   onBlur: () => void;
   placeholder?: string;
   disabled?: boolean;
+  startIcon?: ReactNode;
 }) {
   const [text, setText] = useState(() => formatMoneyDisplay(value));
   const lastEmitted = useRef(value);
@@ -168,6 +175,7 @@ function MoneyInput({
       keyboardType="decimal-pad"
       placeholder={placeholder ?? "0,00"}
       editable={!disabled}
+      startIcon={startIcon}
     />
   );
 }

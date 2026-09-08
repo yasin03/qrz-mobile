@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "qrz-mobile",
+    "name": "QR Zaman",
     "slug": "qrz-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -8,9 +8,12 @@
     "scheme": "qrzmobile",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "com.qrzaman.qrzmobile"
     },
     "android": {
+      "package": "com.qrzaman.qrzmobile",
+      "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -47,6 +50,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "6db3932f-545c-4c2f-8a16-a06b33312a17"
+      }
     }
   }
 }

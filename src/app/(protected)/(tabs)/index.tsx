@@ -11,10 +11,12 @@ import {
   QrCode,
   User,
   ShieldCheck,
+  UserCircle,
 } from "lucide-react-native";
 
 import { Badge } from "@/components/ui/badge";
 import { useAuthStore } from "@/stores/auth-store";
+import { useRouter } from "expo-router";
 
 type ShortcutItem = {
   key: string;
@@ -74,7 +76,7 @@ const shortcuts: readonly ShortcutItem[] = [
 
 export default function PersonnelHomeScreen() {
   const user = useAuthStore((state) => state.user);
-
+  const router = useRouter();
   return (
     <View className="flex-1 bg-qrz-navy">
       {/* --- Lacivert header --- */}
@@ -96,11 +98,8 @@ export default function PersonnelHomeScreen() {
             </Badge>
           </View>
 
-          <TouchableOpacity onPress={() => alert("Bildirimler")}>
-            <Bell size={24} color="white" />
-            <Text className="absolute -top-1 -right-1 text-xs text-white font-bold bg-red-500 rounded-full w-4 h-4 text-center">
-              3
-            </Text>
+          <TouchableOpacity onPress={() => router.push("/(protected)/profile")}>
+            <UserCircle size={40} color="white" />
           </TouchableOpacity>
         </View>
 
