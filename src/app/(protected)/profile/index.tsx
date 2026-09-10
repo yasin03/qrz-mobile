@@ -13,9 +13,16 @@ import {
   ShieldCheck,
   ChevronRight,
   Bell,
+  User,
+  Clock,
+  Wallet,
+  MapPin,
 } from "lucide-react-native";
 import { useAuthStore } from "@/stores/auth-store";
 import { Badge } from "@/components/ui/badge";
+import { usePersonelDetay } from "@/hooks/use-personel";
+import { useRouter } from "expo-router";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 function getInitials(name?: string) {
   if (!name) return "?";
@@ -78,6 +85,36 @@ function InfoRow({
   );
 }
 
+function MenuRow({
+  icon,
+  label,
+  onPress,
+  isLast,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  onPress: () => void;
+  isLast?: boolean;
+}) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.7}
+      className={`flex-row items-center justify-between py-3.5 ${
+        isLast ? "" : "border-b border-slate-100"
+      }`}
+    >
+      <View className="flex-row items-center gap-3">
+        <View className="h-9 w-9 items-center justify-center rounded-full bg-slate-100">
+          {icon}
+        </View>
+        <Text className="text-sm font-medium text-slate-900">{label}</Text>
+      </View>
+      <ChevronRight size={16} color="#94a3b8" />
+    </TouchableOpacity>
+  );
+}
+
 function SectionCard({
   title,
   children,
@@ -101,9 +138,8 @@ const Index = () => {
   const insets = useSafeAreaInsets();
   const logout = useAuthStore((state) => state.logout);
   const user = useAuthStore((state) => state.user);
-
+  const router = useRouter();
   const initials = useMemo(() => getInitials(user?.Ad), [user?.Ad]);
-
   const handleLogout = () => {
     Alert.alert(
       "Çıkış Yap",
@@ -158,44 +194,42 @@ const Index = () => {
         contentContainerClassName="pt-5 pb-6"
         showsVerticalScrollIndicator={false}
       >
-        <SectionCard title="Hesap Bilgileri">
-          <InfoRow
-            icon={<Hash size={16} color="#64748b" />}
-            label="Personel No"
-            value={user?.IDSubePersonel}
+        <SectionCard title="Bilgilerim">
+          <MenuRow
+            icon={<User size={16} color="#64748b" />}
+            label="Personel Bilgileri"
+            onPress={() => router.push("/profile/personel-bilgileri")}
           />
-          <InfoRow
-            icon={<Building2 size={16} color="#64748b" />}
-            label="Şirket No"
-            value={user?.IDSirket}
+          <MenuRow
+            icon={<Clock size={16} color="#64748b" />}
+            label="Giriş/Çıkış Bilgileri"
+            onPress={() => router.push("/profile/giris-cikis-bilgileri")}
           />
-          <InfoRow
-            icon={<Building2 size={16} color="#64748b" />}
-            label="Şube No"
-            value={user?.IDSube}
+          <MenuRow
+            icon={<Wallet size={16} color="#64748b" />}
+            label="Bordro Bilgileri"
+            onPress={() => router.push("/profile/bordro-bilgileri")}
+          />
+          <MenuRow
+            icon={<MapPin size={16} color="#64748b" />}
+            label="Adres Bilgileri"
+            onPress={() => router.push("/profile/adres-bilgileri")}
+          />
+          <MenuRow
+            icon={<Smartphone size={16} color="#64748b" />}
+            label="Cihaz Bilgileri"
+            onPress={() => router.push("/profile/cihaz-bilgileri")}
             isLast
           />
         </SectionCard>
-
-        <SectionCard title="Cihaz Bilgileri">
-          <InfoRow
-            icon={<Smartphone size={16} color="#64748b" />}
-            label="Cihaz"
-            value={Device.deviceName ?? "-"}
-          />
-          <InfoRow
-            icon={<Smartphone size={16} color="#64748b" />}
-            label="Marka"
-            value={Device.brand ?? "-"}
-          />
-          <InfoRow
-            icon={<Smartphone size={16} color="#64748b" />}
-            label="Sistem"
-            value={`${Device.osName ?? "-"} ${Device.osVersion ?? ""}`}
-            isLast
-          />
-        </SectionCard>
-
+        
+         {/* <View className="mt-6 px-4">
+          <Text className="text-sm font-medium text-muted-foreground mb-2">
+            Görünüm
+          </Text>
+          <ThemeToggle />
+        </View> */}
+      
         <TouchableOpacity
           onPress={handleLogout}
           activeOpacity={0.7}

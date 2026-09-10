@@ -16,7 +16,7 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { useAuthStore } from "@/stores/auth-store";
-import { useRouter } from "expo-router";
+import { useRouter, Href } from "expo-router";
 
 type ShortcutItem = {
   key: string;
@@ -25,6 +25,7 @@ type ShortcutItem = {
   title: string;
   subtitle: string;
   badge?: number;
+  url: Href;
 };
 
 // --- Kısayol kart verisi (şimdilik statik/default) ---
@@ -35,6 +36,7 @@ const shortcuts: readonly ShortcutItem[] = [
     iconColor: "#3B82F6",
     title: "İzin Talepleri",
     subtitle: "İzin durumlarınızı görüntüleyin",
+    url: "/(protected)/(tabs)/izinler",
   },
   {
     key: "avans",
@@ -42,6 +44,7 @@ const shortcuts: readonly ShortcutItem[] = [
     iconColor: "#3B82F6",
     title: "Avans Talepleri",
     subtitle: "Avans taleplerinizi yönetin",
+    url: "/(protected)/(tabs)/avanslar",
   },
   {
     key: "pdks",
@@ -49,6 +52,7 @@ const shortcuts: readonly ShortcutItem[] = [
     iconColor: "#3B82F6",
     title: "PDKS Bilgileri",
     subtitle: "Giriş/çıkış kayıtlarınızı görün",
+    url: "/(protected)/(tabs)/lokasyonlar",
   },
   {
     key: "bildirim",
@@ -57,6 +61,7 @@ const shortcuts: readonly ShortcutItem[] = [
     title: "Bildirimler",
     subtitle: "Bildirimlerinizi inceleyin",
     badge: 3,
+    url: "/",
   },
   {
     key: "qr",
@@ -64,6 +69,7 @@ const shortcuts: readonly ShortcutItem[] = [
     iconColor: "#3B82F6",
     title: "QR İşlemleri",
     subtitle: "QR okut ve işlemlerini gerçekleştir",
+    url: "/(protected)/(tabs)/qr-tara",
   },
   {
     key: "profil",
@@ -71,6 +77,7 @@ const shortcuts: readonly ShortcutItem[] = [
     iconColor: "#3B82F6",
     title: "Profilim",
     subtitle: "Kişisel bilgilerinizi görüntüleyin",
+    url: "/(protected)/profile",
   },
 ];
 
@@ -212,11 +219,14 @@ function ShortcutCard({
   title,
   subtitle,
   badge,
+  url,
 }: ShortcutItem) {
+  const router = useRouter();
   return (
     <TouchableOpacity
       className="w-[48%] mb-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm shadow-black/5"
       activeOpacity={0.7}
+      onPress={() => router.push(url)}
     >
       <View className="flex-row items-start justify-between">
         <Icon size={26} color={iconColor} />

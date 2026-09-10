@@ -9,15 +9,17 @@ import {
 } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
-import { useColorScheme } from "react-native";
+import { colorScheme as nwColorScheme, useColorScheme } from "nativewind";
 import { QueryProvider } from "@/providers/query-provider";
 import { useAuthStore } from "@/stores/auth-store";
 import { CustomSplashScreen } from "@/components/splash-screen";
 import { PortalHost } from "@rn-primitives/portal";
+import { useThemeStore } from "@/stores/theme-store";
+import { ConfirmDialogProvider } from "@/providers/confirm-dialog-provider";
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const { colorScheme } = useColorScheme();
 
   const router = useRouter();
   const segments = useSegments();
@@ -26,6 +28,10 @@ export default function RootLayout() {
   const isHydrated = useAuthStore((state) => state.isHydrated);
 
   const hydrate = useAuthStore((state) => state.hydrate);
+
+  useEffect(() => {
+    nwColorScheme.set(useThemeStore.getState().mode);
+  }, []);
 
   // İlk açılışta SecureStore'dan auth bilgilerini al
   useEffect(() => {
@@ -75,6 +81,7 @@ export default function RootLayout() {
             />
           )}
           <PortalHost />
+          <ConfirmDialogProvider />
         </ThemeProvider>
       </QueryProvider>
     </>
