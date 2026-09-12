@@ -12,10 +12,10 @@ import { useIzinler, useDeleteIzin } from "@/hooks/use-izin";
 import { usePersonelSabitTanimlar } from "@/hooks/use-sabit-tanimlar";
 import { getDefaultIzinTarihAraligi } from "@/lib/date-helpers";
 import { confirm } from "@/stores/dialog-store";
-import { DataTable } from "@/components/data-table";
 
 import type { IzinKaydi } from "@/types/izin";
 import { IzinFilterSheet } from "@/components/izin/filtre";
+import { CustomDataTable } from "@/components/custom-data-table";
 
 type FiltreForm = { aciklama: string };
 
@@ -180,7 +180,7 @@ export default function Izinler() {
         {isLoading ? (
           <ActivityIndicator className="mt-8" />
         ) : (
-          <DataTable
+          <CustomDataTable
             columns={columns}
             data={data ?? []}
             keyExtractor={(item) => item.IDIzinGenel}

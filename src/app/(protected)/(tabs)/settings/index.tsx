@@ -17,6 +17,7 @@ import {
   Clock,
   Wallet,
   MapPin,
+  UserCircle,
 } from "lucide-react-native";
 import { useAuthStore } from "@/stores/auth-store";
 import { Badge } from "@/components/ui/badge";
@@ -180,13 +181,6 @@ const Index = () => {
             </Text>
           </Badge>
         </View>
-
-        <TouchableOpacity onPress={() => alert("Bildirimler")}>
-          <Bell size={24} color="white" />
-          <Text className="absolute -top-1 -right-1 text-xs text-white font-bold bg-red-500 rounded-full w-4 h-4 text-center">
-            3
-          </Text>
-        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -194,42 +188,44 @@ const Index = () => {
         contentContainerClassName="pt-5 pb-6"
         showsVerticalScrollIndicator={false}
       >
-        <SectionCard title="Bilgilerim">
+        <SectionCard title="Kişisel Bilgilerim">
           <MenuRow
             icon={<User size={16} color="#64748b" />}
             label="Personel Bilgileri"
-            onPress={() => router.push("/profile/personel-bilgileri")}
+            onPress={() => router.push("/settings/personel-bilgileri")}
           />
           <MenuRow
             icon={<Clock size={16} color="#64748b" />}
             label="Giriş/Çıkış Bilgileri"
-            onPress={() => router.push("/profile/giris-cikis-bilgileri")}
+            onPress={() => router.push("/settings/giris-cikis-bilgileri")}
           />
           <MenuRow
             icon={<Wallet size={16} color="#64748b" />}
             label="Bordro Bilgileri"
-            onPress={() => router.push("/profile/bordro-bilgileri")}
+            onPress={() => router.push("/settings/bordro-bilgileri")}
           />
           <MenuRow
             icon={<MapPin size={16} color="#64748b" />}
             label="Adres Bilgileri"
-            onPress={() => router.push("/profile/adres-bilgileri")}
+            onPress={() => router.push("/settings/adres-bilgileri")}
           />
+        </SectionCard>
+        <SectionCard title="Bilgilerim">
           <MenuRow
             icon={<Smartphone size={16} color="#64748b" />}
             label="Cihaz Bilgileri"
-            onPress={() => router.push("/profile/cihaz-bilgileri")}
+            onPress={() => router.push("/settings/cihaz-bilgileri")}
             isLast
           />
         </SectionCard>
-        
-         {/* <View className="mt-6 px-4">
+
+        {/* <View className="mt-6 px-4">
           <Text className="text-sm font-medium text-muted-foreground mb-2">
             Görünüm
           </Text>
           <ThemeToggle />
         </View> */}
-      
+
         <TouchableOpacity
           onPress={handleLogout}
           activeOpacity={0.7}

@@ -21,7 +21,6 @@ export function useLogin() {
         idDevice,
       });
 
-      console.log("LOGIN RESPONSE:", response);
       const user = response.data as User | null;
       if (!user || !user.token || !user.IDKullanici) {
         throw new ApiClientError(

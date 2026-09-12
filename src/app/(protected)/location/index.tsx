@@ -13,8 +13,6 @@ const Index = () => {
   const router = useRouter();
   const [selectedBolumId, setSelectedBolumId] = useState<string>();
 
-  
-
   const {
     data: bolumler,
     isLoading: isBolumlerLoading,

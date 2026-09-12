@@ -12,7 +12,7 @@ export default function ProtectedLayout() {
         <Icon sf="house.fill" md="home" />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="izinler">
+      {/*       <NativeTabs.Trigger name="izinler">
         <Label>İzinler</Label>
         <Icon sf="calendar" md="event" />
       </NativeTabs.Trigger>
@@ -20,8 +20,11 @@ export default function ProtectedLayout() {
       <NativeTabs.Trigger name="avanslar">
         <Label>Avanslar</Label>
         <Icon sf="banknote.fill" md="payments" />
+      </NativeTabs.Trigger> */}
+      <NativeTabs.Trigger name="pdks">
+        <Label>PDKS</Label>
+        <Icon sf="clock" md="clock_loader_10" />
       </NativeTabs.Trigger>
-
       <NativeTabs.Trigger
         name="lokasyonlar"
         hidden={!hasRole(ROLE_GROUPS.ADMIN_VE_YONETICI)}
@@ -32,6 +35,10 @@ export default function ProtectedLayout() {
       <NativeTabs.Trigger name="qr-tara">
         <Label>QR Tara</Label>
         <Icon sf="qrcode.viewfinder" md="qr_code_scanner" />
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="settings">
+        <Label>Settings</Label>
+        <Icon sf="gear.circle" md="settings" />
       </NativeTabs.Trigger>
 
       {/*       <NativeTabs.Trigger name="profile">

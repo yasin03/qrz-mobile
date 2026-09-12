@@ -72,7 +72,6 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !isAuthEndpoint) {
       const { user } = useAuthStore.getState();
       if (!user?.token || isTokenExpired(user.token)) {
-        console.log("AXIOS: 401 Unauthorized (token expired), logout");
         await useAuthStore.getState().logout();
       }
     }

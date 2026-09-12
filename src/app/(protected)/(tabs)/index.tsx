@@ -17,6 +17,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useAuthStore } from "@/stores/auth-store";
 import { useRouter, Href } from "expo-router";
+import { usePdksSelect } from "@/hooks/use-pdks";
 
 type ShortcutItem = {
   key: string;
@@ -36,7 +37,7 @@ const shortcuts: readonly ShortcutItem[] = [
     iconColor: "#3B82F6",
     title: "İzin Talepleri",
     subtitle: "İzin durumlarınızı görüntüleyin",
-    url: "/(protected)/(tabs)/izinler",
+    url: "/(protected)/izinler",
   },
   {
     key: "avans",
@@ -44,7 +45,7 @@ const shortcuts: readonly ShortcutItem[] = [
     iconColor: "#3B82F6",
     title: "Avans Talepleri",
     subtitle: "Avans taleplerinizi yönetin",
-    url: "/(protected)/(tabs)/avanslar",
+    url: "/(protected)/avanslar",
   },
   {
     key: "pdks",
@@ -52,7 +53,15 @@ const shortcuts: readonly ShortcutItem[] = [
     iconColor: "#3B82F6",
     title: "PDKS Bilgileri",
     subtitle: "Giriş/çıkış kayıtlarınızı görün",
-    url: "/(protected)/(tabs)/lokasyonlar",
+    url: "/(protected)/(tabs)/pdks",
+  },
+  {
+    key: "qr",
+    icon: QrCode,
+    iconColor: "#3B82F6",
+    title: "QR İşlemleri",
+    subtitle: "QR okut ve işlemlerini gerçekleştir",
+    url: "/(protected)/(tabs)/qr-tara",
   },
   {
     key: "bildirim",
@@ -64,26 +73,29 @@ const shortcuts: readonly ShortcutItem[] = [
     url: "/",
   },
   {
-    key: "qr",
-    icon: QrCode,
-    iconColor: "#3B82F6",
-    title: "QR İşlemleri",
-    subtitle: "QR okut ve işlemlerini gerçekleştir",
-    url: "/(protected)/(tabs)/qr-tara",
-  },
-  {
     key: "profil",
     icon: User,
     iconColor: "#3B82F6",
     title: "Profilim",
     subtitle: "Kişisel bilgilerinizi görüntüleyin",
-    url: "/(protected)/profile",
+    url: "/(protected)/(tabs)/settings",
   },
 ];
 
 export default function PersonnelHomeScreen() {
   const user = useAuthStore((state) => state.user);
   const router = useRouter();
+  const {
+    data: pdksData = [],
+    isLoading: isPdksLoading,
+    isError: isPdksError,
+  } = usePdksSelect(
+    Number(user?.IDSubePersonel),
+    new Date().toISOString().split("T")[0],
+    new Date().toISOString().split("T")[0],
+  );
+  const pdks = pdksData[0] || { Giris: null, Cikis: null, Tarih: null };
+
   return (
     <View className="flex-1 bg-qrz-navy">
       {/* --- Lacivert header --- */}
@@ -105,8 +117,11 @@ export default function PersonnelHomeScreen() {
             </Badge>
           </View>
 
-          <TouchableOpacity onPress={() => router.push("/(protected)/profile")}>
-            <UserCircle size={40} color="white" />
+          <TouchableOpacity onPress={() => alert("Bildirimler")}>
+            <Bell size={24} color="white" />
+            <Text className="absolute -top-1 -right-1 text-xs text-white font-bold bg-red-500 rounded-full w-4 h-4 text-center">
+              3
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -126,21 +141,21 @@ export default function PersonnelHomeScreen() {
               <StatItem
                 icon={<CalendarCheck size={22} color="#3B82F6" />}
                 label="Bugünkü Giriş"
-                value="08:32"
+                value={pdks.Giris ? pdks.Giris : "--:--"}
                 valueColor="#22C55E"
                 hint="Zamanında"
               />
               <StatItem
                 icon={<CalendarX size={22} color="#052346" />}
                 label="Bugünkü Çıkış"
-                value="--:--"
+                value={pdks.Cikis ? pdks.Cikis : "--:--"}
                 valueColor="#94A3B8"
                 hint="Henüz çıkış yok"
               />
               <StatItem
                 icon={<Clock size={22} color="#052346" />}
                 label="Mesai Süresi"
-                value="--:--"
+                value={pdks.MesaiSure ? pdks.MesaiSure : "--:--"}
                 valueColor="#94A3B8"
                 hint="--"
               />
