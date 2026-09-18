@@ -13,7 +13,6 @@
     },
     "android": {
       "package": "com.qrzaman.qrzmobile",
-      "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -25,11 +24,6 @@
     "web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png"
-    },
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
     },
     "plugins": [
       "expo-router",
@@ -45,7 +39,9 @@
           }
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-image",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

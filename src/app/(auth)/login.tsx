@@ -23,7 +23,6 @@ import { FormInput } from "@/components/form/form-input";
 
 export default function LoginScreen() {
   const loginMutation = useLogin();
-  const [showPassword, setShowPassword] = useState(false);
 
   const {
     control,
@@ -86,7 +85,7 @@ export default function LoginScreen() {
           <Pressable
             className="mb-6 flex-row justify-end"
             onPress={() =>
-              alert("Şifremi Unuttum sayfası en kısa zamanda eklenecektir.")
+              alert(`Şifremi Unuttum sayfası en kısa zamanda eklenecektir. \nAPI :  ${process.env.EXPO_PUBLIC_API_URL}`)
             }
           >
             <Text className="text-sm font-medium text-qrz-blue">
@@ -96,7 +95,7 @@ export default function LoginScreen() {
         </View>
 
         <Button
-          className="h-14 rounded-xl bg-qrz-blue"
+          className="h-12 rounded-xl bg-qrz-blue"
           disabled={loginMutation.isPending}
           onPress={handleSubmit(onSubmit)}
         >
@@ -111,7 +110,7 @@ export default function LoginScreen() {
             </View>
           )}
         </Button>
-
+       
         {loginMutation.isError && (
           <Text className="mt-4 text-center text-sm text-red-500">
             Kullanıcı adı veya şifre hatalı.

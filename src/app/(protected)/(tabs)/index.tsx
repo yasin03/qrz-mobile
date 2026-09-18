@@ -143,7 +143,7 @@ export default function PersonnelHomeScreen() {
                 label="Bugünkü Giriş"
                 value={pdks.Giris ? pdks.Giris : "--:--"}
                 valueColor="#22C55E"
-                hint="Zamanında"
+                hint={pdks.Giris ? "Giriş Yapıldı." : "Henüz giriş yok"}
               />
               <StatItem
                 icon={<CalendarX size={22} color="#052346" />}

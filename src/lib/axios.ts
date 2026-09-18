@@ -4,7 +4,11 @@ import axios, { AxiosError } from "axios";
 import { isTokenExpired, useAuthStore } from "@/stores/auth-store";
 import type { ApiResponse } from "@/types/api";
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
+if (!API_URL) {
+  throw new Error("EXPO_PUBLIC_API_URL tanımlı değil.");
+}
 
 export class ApiClientError extends Error {
   code?: string;
@@ -36,6 +40,10 @@ export const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const user = useAuthStore.getState().user;
+    console.log("API REQUEST:", {
+      method: config.method,
+      url: config.url,
+    });
     if (user?.token) {
       config.headers.Authorization = `Bearer ${user.token}`;
     }

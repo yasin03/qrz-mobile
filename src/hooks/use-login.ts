@@ -42,13 +42,23 @@ export function useLogin() {
     },
 
     onError: (error) => {
-      console.error("LOGIN ERROR:", error);
+      /*  console.error("LOGIN ERROR:", error);
       const message =
         error instanceof ApiClientError
           ? error.message
           : "Giriş yapılamadı. Lütfen tekrar deneyin.";
 
-      Alert.alert("Hata", message);
+      Alert.alert("Hata", message); */
+
+      console.error("LOGIN ERROR:", error);
+      const rawMessage =
+        error instanceof ApiClientError
+          ? `[${error.code}] ${error.message}`
+          : error instanceof Error
+            ? `${error.name}: ${error.message}`
+            : String(error);
+
+      Alert.alert("DEBUG - Gerçek Hata", rawMessage);
     },
   });
 }
