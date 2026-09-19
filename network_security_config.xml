@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="@raw/ssl_com_root_2022" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>
