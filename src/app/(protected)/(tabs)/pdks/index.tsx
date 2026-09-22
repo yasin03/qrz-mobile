@@ -111,7 +111,7 @@ const Index = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 p-2 bg-white">
+    <SafeAreaView className="flex-1 p-2 px-6 bg-white">
       {/* Header */}
       <View className="mb-3 flex-row items-center justify-between">
         <Text className="text-lg font-medium text-qrz-navy">

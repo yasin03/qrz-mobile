@@ -70,7 +70,7 @@ const shortcuts: readonly ShortcutItem[] = [
     title: "Bildirimler",
     subtitle: "Bildirimlerinizi inceleyin",
     badge: 3,
-    url: "/",
+    url: "/(protected)/bildirimler",
   },
   {
     key: "profil",
@@ -78,7 +78,7 @@ const shortcuts: readonly ShortcutItem[] = [
     iconColor: "#3B82F6",
     title: "Profilim",
     subtitle: "Kişisel bilgilerinizi görüntüleyin",
-    url: "/(protected)/(tabs)/settings",
+    url: "/(protected)/(tabs)/profile",
   },
 ];
 
@@ -117,7 +117,7 @@ export default function PersonnelHomeScreen() {
             </Badge>
           </View>
 
-          <TouchableOpacity onPress={() => alert("Bildirimler")}>
+          <TouchableOpacity onPress={() => router.push("/(protected)/bildirimler")} className="relative">
             <Bell size={24} color="white" />
             <Text className="absolute -top-1 -right-1 text-xs text-white font-bold bg-red-500 rounded-full w-4 h-4 text-center">
               3

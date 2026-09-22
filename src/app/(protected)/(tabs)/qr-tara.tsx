@@ -3,7 +3,7 @@ import { Text } from "@/components/ui/text";
 import { usePermissions } from "@/hooks/use-permissions";
 import { useRole } from "@/hooks/use-role";
 import { ROLE_GROUPS } from "@/lib/user-types";
-import { useRouter } from "expo-router";
+import { useRouter, useIsFocused } from "expo-router";
 import { CameraView, BarcodeScanningResult } from "expo-camera";
 import * as Location from "expo-location";
 import { CheckCircle2, LocationEdit, XCircle } from "lucide-react-native";
@@ -24,6 +24,18 @@ const QRTara = () => {
   const [scanSuccess, setScanSuccess] = useState(false);
   const scanLockRef = useRef(false);
   const [idDevice, setIdDevice] = useState<string | null>(null);
+  const isFocused = useIsFocused();
+  const isFocusedRef = useRef(isFocused);
+
+  useEffect(() => {
+    isFocusedRef.current = isFocused;
+  }, [isFocused]);
+
+  function alertIfFocused(...args: Parameters<typeof Alert.alert>) {
+    if (isFocusedRef.current) {
+      Alert.alert(...args);
+    }
+  }
 
   useEffect(() => {
     (async () => {
@@ -92,7 +104,7 @@ const QRTara = () => {
         Number.isNaN(enlem) ||
         Number.isNaN(boylam)
       ) {
-        Alert.alert("Hata", "QR kod okunamadı veya format geçersiz.");
+        alertIfFocused("Hata", "QR kod okunamadı veya format geçersiz.");
         scanLockRef.current = false;
         return;
       }
@@ -103,7 +115,7 @@ const QRTara = () => {
       );
 
       if (position.mocked) {
-        Alert.alert("Hata", "Sahte konum tespit edildi. Kayıt oluşturulamaz.");
+        alertIfFocused("Hata", "Sahte konum tespit edildi. Kayıt oluşturulamaz.");
         scanLockRef.current = false;
         return;
       }
@@ -117,7 +129,7 @@ const QRTara = () => {
 
       const { latitude, longitude, accuracy } = position.coords;
 
-      Alert.alert(
+      alertIfFocused(
         "PDKS Kaydı Oluşturuldu",
         `QR Verisi:\n` +
           `Bölüm Lokasyon: ${idBolumLokasyon}\n` +
@@ -147,15 +159,15 @@ const QRTara = () => {
       }, 1200);
     } catch (error) {
       if ((error as Error).message === "LOCATION_TIMEOUT") {
-        Alert.alert(
+        alertIfFocused(
           "Hata",
           "Konum alınamadı, lütfen açık alanda tekrar deneyin.",
         );
       } else if (error instanceof ApiClientError) {
-        Alert.alert("Hata", error.message);
+        alertIfFocused("Hata", error.message);
       } else {
         console.error("QR tarama hatası:", error);
-        Alert.alert("Hata", "QR işlenemedi. Lütfen tekrar deneyin.");
+        alertIfFocused("Hata", "QR işlenemedi. Lütfen tekrar deneyin.");
       }
       scanLockRef.current = false;
     } finally {

@@ -1,12 +1,32 @@
-import { Controller, type Control, type FieldPath, type FieldValues } from "react-hook-form";
+import {
+  Controller,
+  type Control,
+  type FieldPath,
+  type FieldValues,
+} from "react-hook-form";
 import { format, isValid } from "date-fns";
 import { Field } from "./field";
 import { NativeDatePicker } from "../native-date-picker";
 
 function parseDateValue(value: unknown): Date | undefined {
   if (!value) return undefined;
-  if (value instanceof Date) return isValid(value) ? value : undefined;
+  if (value instanceof Date) {
+    return isValid(value) ? value : undefined;
+  }
   if (typeof value === "string") {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+    if (match) {
+      const [, year, month, day] = match;
+      return new Date(
+        Number(year),
+        Number(month) - 1,
+        Number(day),
+        12,
+        0,
+        0,
+        0,
+      );
+    }
     const parsed = new Date(value);
     return isValid(parsed) ? parsed : undefined;
   }
@@ -53,7 +73,10 @@ export function FormDatePicker<T extends FieldValues = FieldValues>({
       <Controller
         control={control}
         name={name}
-        render={({ field: { value: fieldValue, onChange: fieldOnChange }, fieldState }) => (
+        render={({
+          field: { value: fieldValue, onChange: fieldOnChange },
+          fieldState,
+        }) => (
           <Field
             label={label}
             required={required}
