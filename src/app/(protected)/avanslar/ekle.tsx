@@ -17,6 +17,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useCreateAvansTalep } from "@/hooks/use-avans";
 import { FormInput } from "@/components/form/form-input";
 import { NativeDatePicker } from "@/components/native-date-picker";
+import { FormDatePicker } from "@/components/form/form-date-picker";
 
 const avansTalepSchema = z.object({
   Tutar: z.coerce
@@ -76,7 +77,7 @@ export default function AvansEkle() {
       Mesaj: values.Mesaj,
       OdemeBaslangicTarihi: values.OdemeBaslangicTarihi,
     };
-    console.log("Submitting avans talep:", payload);
+
     createTalepMutation.mutate(payload, {
       onSuccess: () => router.back(),
     });
@@ -119,26 +120,12 @@ export default function AvansEkle() {
           disabled
         />
 
-        <View>
-          <Text className="mb-1 text-xs text-gray-500">
-            Ödeme Başlangıç Tarihi
-          </Text>
-          <Controller
-            control={control}
-            name="OdemeBaslangicTarihi"
-            render={({ field: { value, onChange } }) => (
-              <NativeDatePicker
-                value={new Date(value)}
-                onChange={(date) => onChange(format(date, "yyyy-MM-dd"))}
-              />
-            )}
-          />
-          {errors.OdemeBaslangicTarihi ? (
-            <Text className="mt-1 text-xs text-red-600">
-              {errors.OdemeBaslangicTarihi.message}
-            </Text>
-          ) : null}
-        </View>
+        <FormDatePicker
+          control={control}
+          name="OdemeBaslangicTarihi"
+          label="Ödeme Başlangıç Tarihi"
+          placeholder="Tarih seçin"
+        />
 
         <FormInput
           control={control}

@@ -11,7 +11,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://test2.finalizer.com.tr"
+        "EXPO_PUBLIC_API_URL": "https://test1.finalizer.com.tr"
       }
     },
     "preview": {
@@ -20,7 +20,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://test2.finalizer.com.tr"
+        "EXPO_PUBLIC_API_URL": "https://test1.finalizer.com.tr"
       }
     },
     "production": {

@@ -1,16 +1,34 @@
 import { Icon } from "@/components/ui/icon";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { applyFormat, applyMoneyFormat, formatMoneyDisplay, padMoneyApiValue, type InputFormat } from "@/lib/input-format";
+import {
+  applyFormat,
+  applyMoneyFormat,
+  formatMoneyDisplay,
+  padMoneyApiValue,
+  type InputFormat,
+} from "@/lib/input-format";
 import { Eye, EyeOff } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
-import { Controller, type Control, type FieldPath, type FieldValues } from "react-hook-form";
+import {
+  Controller,
+  type Control,
+  type FieldPath,
+  type FieldValues,
+} from "react-hook-form";
 import { Pressable, View, type KeyboardTypeOptions } from "react-native";
 import type { ReactNode } from "react";
 
 import { Field } from "./field";
 
-export type FormInputType = "text" | "email" | "password" | "tel" | "url" | "number" | "textarea";
+export type FormInputType =
+  | "text"
+  | "email"
+  | "password"
+  | "tel"
+  | "url"
+  | "number"
+  | "textarea";
 
 const TYPE_KEYBOARD: Partial<Record<FormInputType, KeyboardTypeOptions>> = {
   email: "email-address",
@@ -47,6 +65,7 @@ type FormInputProps<T extends FieldValues> = {
   maxLength?: number;
   vertical?: boolean;
   startIcon?: ReactNode; // eklendi
+  rows?: number;
 };
 
 export function FormInput<T extends FieldValues>({
@@ -63,6 +82,7 @@ export function FormInput<T extends FieldValues>({
   maxLength,
   vertical = false,
   startIcon, // eklendi
+  rows = 2,
 }: FormInputProps<T>) {
   const isPassword = type === "password";
   const isMoney = format === "money";
@@ -96,18 +116,27 @@ export function FormInput<T extends FieldValues>({
               editable={!disabled}
               secureTextEntry={isPassword && !showPassword}
               multiline={isTextarea}
-              numberOfLines={isTextarea ? 4 : undefined}
+              numberOfLines={isTextarea ? rows : undefined}
+              
               keyboardType={FORMAT_KEYBOARD[format!] ?? TYPE_KEYBOARD[type]}
               maxLength={FORMAT_MAXLENGTH[format!] ?? maxLength}
               startIcon={startIcon}
-              className={cn(isPassword && "pr-10", isTextarea && "h-24 py-2")}
+              style={
+                isTextarea
+                  ? { height: rows * 20 + 16, textAlignVertical: "top" }
+                  : undefined
+              }
+              className={cn(isPassword && "pr-10", isTextarea && "py-2")}
             />
             {isPassword && (
               <Pressable
                 onPress={() => setShowPassword((p) => !p)}
                 className="absolute right-3 top-1/2 -translate-y-1/2"
               >
-                <Icon as={showPassword ? EyeOff : Eye} className="text-muted-foreground size-4" />
+                <Icon
+                  as={showPassword ? EyeOff : Eye}
+                  className="text-muted-foreground size-4"
+                />
               </Pressable>
             )}
           </View>

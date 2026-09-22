@@ -18,9 +18,8 @@ const SCAN_FRAME_SIZE = 260;
 const QRTara = () => {
   const router = useRouter();
   const { hasRole } = useRole();
-  const { ensurePermissions } = usePermissions();
+  const { ensurePermissions, permissionsGranted } = usePermissions();
   const pdksMutation = usePdksMutation();
-  const [permissionsGranted, setPermissionsGranted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [scanSuccess, setScanSuccess] = useState(false);
   const scanLockRef = useRef(false);
@@ -28,10 +27,9 @@ const QRTara = () => {
 
   useEffect(() => {
     (async () => {
-      const ok = await ensurePermissions();
       const id = await getDeviceId();
       setIdDevice(id);
-      setPermissionsGranted(ok);
+      await ensurePermissions();
     })();
   }, []);
 
@@ -110,15 +108,40 @@ const QRTara = () => {
         return;
       }
 
-      await pdksMutation.mutateAsync({
+/*       await pdksMutation.mutateAsync({
         idBolum,
         idBolumLokasyon,
         position,
-      });
+      }); */
       setScanSuccess(true);
 
+      const { latitude, longitude, accuracy } = position.coords;
+
+      Alert.alert(
+        "PDKS Kaydı Oluşturuldu",
+        `QR Verisi:\n` +
+          `Bölüm Lokasyon: ${idBolumLokasyon}\n` +
+          `Bölüm: ${idBolum}\n` +
+          `Enlem: ${enlem}\n` +
+          `Boylam: ${boylam}\n\n` +
+          `Telefon Konum Verisi:\n` +
+          `Enlem: ${latitude}\n` +
+          `Boylam: ${longitude}\n` +
+          `Doğruluk: ${accuracy != null ? `${accuracy.toFixed(1)} m` : "-"}\n` +
+          `Zaman: ${new Date(position.timestamp).toLocaleString("tr-TR")}`,
+        [
+          {
+            text: "Tamam",
+            onPress: () => {
+              setScanSuccess(false);
+              scanLockRef.current = false;
+              router.replace("/(protected)/(tabs)/pdks");
+            },
+          },
+        ],
+      );
+
       setTimeout(() => {
-        router.replace("/(protected)/(tabs)"); // kendi ana sayfa route'unla değiştir
         setScanSuccess(false);
         scanLockRef.current = false;
       }, 1200);

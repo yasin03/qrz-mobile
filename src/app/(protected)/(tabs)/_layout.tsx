@@ -6,21 +6,12 @@ import { NativeTabs } from "expo-router/build/native-tabs";
 export default function ProtectedLayout() {
   const { hasRole } = useRole();
   return (
-    <NativeTabs>
+    <NativeTabs labelVisibilityMode="labeled">
       <NativeTabs.Trigger name="index">
         <Label>Ana Sayfa</Label>
         <Icon sf="house.fill" md="home" />
       </NativeTabs.Trigger>
 
-      {/*       <NativeTabs.Trigger name="izinler">
-        <Label>İzinler</Label>
-        <Icon sf="calendar" md="event" />
-      </NativeTabs.Trigger>
-
-      <NativeTabs.Trigger name="avanslar">
-        <Label>Avanslar</Label>
-        <Icon sf="banknote.fill" md="payments" />
-      </NativeTabs.Trigger> */}
       <NativeTabs.Trigger name="pdks">
         <Label>PDKS</Label>
         <Icon sf="clock" md="clock_loader_10" />
@@ -36,15 +27,10 @@ export default function ProtectedLayout() {
         <Label>QR Tara</Label>
         <Icon sf="qrcode.viewfinder" md="qr_code_scanner" />
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="settings">
-        <Label>Settings</Label>
-        <Icon sf="gear.circle" md="settings" />
+      <NativeTabs.Trigger name="profile">
+        <Label>Profilim</Label>
+        <Icon sf="person" md="person" />
       </NativeTabs.Trigger>
-
-      {/*       <NativeTabs.Trigger name="profile">
-        <Label>Profil</Label>
-        <Icon sf="person.fill" md="person" />
-      </NativeTabs.Trigger> */}
     </NativeTabs>
   );
 }

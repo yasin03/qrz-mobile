@@ -17,7 +17,7 @@ type PdksJsonData = {
 };
 
 type PdksRequest = {
-  type: "INSERT_PDKS";
+  type: "INSERT_PDKS_KENDI";
   params: {
     jsonData: PdksJsonData;
   };
@@ -34,6 +34,8 @@ type PdksMutationParams = {
   position: Location.LocationObject;
 };
 
+const API_URL = "/api/pdks";
+
 export function usePdksMutation() {
   return useMutation({
     mutationFn: async ({
@@ -45,7 +47,7 @@ export function usePdksMutation() {
       const { coords, timestamp } = position;
 
       const body: PdksRequest = {
-        type: "INSERT_PDKS",
+        type: "INSERT_PDKS_KENDI",
         params: {
           jsonData: {
             idBolum,
@@ -61,7 +63,7 @@ export function usePdksMutation() {
         },
       };
 
-      const response = await api.post<PdksResponse>("/api/pdks", body);
+      const response = await api.post<PdksResponse>(API_URL, body);
       return response.data as PdksResponse;
     },
   });
@@ -70,9 +72,11 @@ export function usePdksMutation() {
 export async function selectPdks(
   params: PDKSSelectRequestType,
 ): Promise<PDKSSelectResponseType[]> {
-  const response = await api.post<PDKSSelectResponseType[]>("/api/pdks", {
-    type: "SELECT_PDKS",
-    params,
+  const response = await api.post<PDKSSelectResponseType[]>(API_URL, {
+    type: "SELECT_PDKS_KENDI",
+    IDSubePersonel: params.IDSubePersonel,
+    Tarih1: params.Tarih1,
+    Tarih2: params.Tarih2,
   });
 
   return response.data;

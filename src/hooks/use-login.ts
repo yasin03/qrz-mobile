@@ -4,7 +4,6 @@ import { api, ApiClientError } from "@/lib/axios";
 import { useAuthStore } from "@/stores/auth-store";
 import type { User } from "@/types/auth";
 import { Alert } from "react-native";
-import axios from "axios";
 
 type LoginRequest = {
   username: string;
@@ -17,7 +16,8 @@ export function useLogin() {
   return useMutation({
     mutationFn: async (values: LoginRequest): Promise<User> => {
       const idDevice = await getDeviceId();
-      const response = await api.post<User>("/api/auth", {
+
+      const response = await api.post<User>("/api/mobile/login", {
         ...values,
         idDevice,
       });
@@ -52,20 +52,7 @@ export function useLogin() {
       Alert.alert("Hata", message); */
 
       console.error("LOGIN ERROR:", error);
-      if (axios.isAxiosError(error)) {
-        console.log("===== LOGIN ERROR =====");
-        console.log("message:", error.message);
-        console.log("code:", error.code);
-        console.log("url:", error.config?.url);
-        console.log("baseURL:", error.config?.baseURL);
-        console.log("method:", error.config?.method);
-        console.log("status:", error.response?.status);
-        console.log("response:", error.response?.data);
-        console.log("request:", error.request);
-        console.log("=======================");
-      } else {
-        console.log("LOGIN UNKNOWN ERROR:", error);
-      }
+
       const rawMessage =
         error instanceof ApiClientError
           ? `[${error.code}] ${error.message}`
@@ -73,7 +60,7 @@ export function useLogin() {
             ? `${error.name}: ${error.message}`
             : String(error);
 
-      Alert.alert("DEBUG - Gerçek Hata", rawMessage);
+      Alert.alert("Hata", rawMessage);
     },
   });
 }

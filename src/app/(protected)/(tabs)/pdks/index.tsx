@@ -49,6 +49,8 @@ const Index = () => {
     data: pdksData = [],
     isLoading: isPdksLoading,
     isError: isPdksError,
+    isRefetching: isPdksRefetching,
+    refetch: refetchPdks,
   } = usePdksSelect(
     Number(user?.IDSubePersonel),
     formatDate(startDate),
@@ -146,6 +148,8 @@ const Index = () => {
             columns={columns}
             data={pdksData}
             keyExtractor={(item) => String(item.IDSubePersonelSaat)}
+            refreshing={isPdksRefetching}
+            onRefresh={refetchPdks}
             renderDetail={(item) => (
               <View className="gap-2 px-4">
                 <View className="flex-row justify-between">
@@ -214,17 +218,17 @@ const Index = () => {
               <View className="flex-1">
                 <Text className="mb-1 text-xs text-gray-500">Başlangıç</Text>
                 <NativeDatePicker
-  value={tempStartDate}
-  onChange={onStartDateChange}
-/>
+                  value={tempStartDate}
+                  onChange={onStartDateChange}
+                />
               </View>
 
               <View className="flex-1">
                 <Text className="mb-1 text-xs text-gray-500">Bitiş</Text>
                 <NativeDatePicker
-  value={tempEndDate}
-  onChange={onEndDateChange}
-/>
+                  value={tempEndDate}
+                  onChange={onEndDateChange}
+                />
               </View>
             </View>
 

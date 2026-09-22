@@ -1,9 +1,18 @@
+import { ReactNode } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
 import { useRouter } from "expo-router";
 
-export function DetailScreenHeader({ title }: { title: string }) {
+type Props = {
+  title: string;
+  /** Sağ tarafa eklenecek opsiyonel aksiyon (buton, ikon, vs.). Verilmezse hiç yer ayrılmaz. */
+  right?: ReactNode;
+  /** Geri butonuna basınca çalışacak özel davranış. Verilmezse router.back() çalışır. */
+  onBack?: () => void;
+};
+
+export function DetailScreenHeader({ title, right, onBack }: Props) {
   const router = useRouter();
 
   return (
@@ -13,13 +22,21 @@ export function DetailScreenHeader({ title }: { title: string }) {
     >
       <View className="flex-row items-center gap-3 px-4 py-3">
         <TouchableOpacity
-          onPress={() => router.back()}
+          onPress={onBack ?? (() => router.back())}
           hitSlop={10}
           className="h-9 w-9 items-center justify-center rounded-full bg-slate-100"
         >
           <ChevronLeft size={20} color="#0f172a" />
         </TouchableOpacity>
-        <Text className="text-base font-semibold text-slate-900">{title}</Text>
+
+        <Text
+          className="flex-1 text-base font-semibold text-slate-900"
+          numberOfLines={1}
+        >
+          {title}
+        </Text>
+
+        {right}
       </View>
     </SafeAreaView>
   );

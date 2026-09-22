@@ -18,3 +18,14 @@ export function formatOrEmpty(value?: string | number | null): string {
   if (value === null || value === undefined || value === "") return "-";
   return String(value);
 }
+
+export const formatMoney = (value: number | string | null | undefined) => {
+  if (value === null || value === undefined || value === "") {
+    return "0,00";
+  }
+
+  return Number(value).toLocaleString("tr-TR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};

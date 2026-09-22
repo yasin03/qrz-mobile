@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   FlatList,
   Pressable,
+  RefreshControl,
   Text,
   View,
   ListRenderItemInfo,
@@ -36,6 +37,12 @@ type DataTableProps<T> = {
 
   /** Loading durumu */
   isLoading?: boolean;
+
+  /** Verilir verilmez aşağı çekince yenileme (pull to refresh) etkinleşir */
+  onRefresh?: () => void;
+
+  /** Yenileme (pull to refresh) sırasında true olmalı */
+  refreshing?: boolean;
 };
 
 export function CustomDataTable<T>({
@@ -48,6 +55,8 @@ export function CustomDataTable<T>({
   multipleExpanded = false,
   expandable = true,
   isLoading = false,
+  onRefresh,
+  refreshing = false,
 }: DataTableProps<T>) {
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(
     new Set()
@@ -172,6 +181,11 @@ export function CustomDataTable<T>({
         keyExtractor={keyExtractor}
         renderItem={renderItem}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          onRefresh ? (
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          ) : undefined
+        }
         contentContainerStyle={
           data.length === 0
             ? { flexGrow: 1 }

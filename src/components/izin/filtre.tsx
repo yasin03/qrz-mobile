@@ -1,9 +1,9 @@
 import { Modal, View, Text, Pressable } from "react-native";
 import { X } from "lucide-react-native";
 import { Control } from "react-hook-form";
-import { NativeDatePicker } from "@/components/native-date-picker";
 import { FormSelect } from "@/components/form/form-select";
 import { format } from "date-fns";
+import { FormDatePicker } from "../form/form-date-picker";
 
 type FiltreForm = { aciklama: string };
 
@@ -52,7 +52,7 @@ export function IzinFilterSheet({
             <View className="flex-row gap-2">
               <View className="flex-1">
                 <Text className="mb-1 text-xs text-gray-500">Başlangıç</Text>
-                <NativeDatePicker
+                <FormDatePicker
                   value={new Date(baslangic)}
                   onChange={(date) =>
                     onBaslangicChange(format(date, "yyyy-MM-dd"))
@@ -61,7 +61,7 @@ export function IzinFilterSheet({
               </View>
               <View className="flex-1">
                 <Text className="mb-1 text-xs text-gray-500">Bitiş</Text>
-                <NativeDatePicker
+                <FormDatePicker
                   value={new Date(bitis)}
                   onChange={(date) => onBitisChange(format(date, "yyyy-MM-dd"))}
                 />

@@ -1,18 +1,77 @@
 import { api } from "@/lib/axios";
-import type { IzinKaydi, IzinFiltre } from "@/types/izin";
+import {
+  IzinType,
+  IzinSelectParams,
+  IzinDeleteParams,
+  IzinInsertParams,
+  IzinTalepSelectParams,
+  IzinTalepType,
+  IzinSureType,
+  IzinTalepInsertParams,
+  IzinSureParams,
+  IzinTalepUpdateParams,
+  IzinFiltre,
+} from "@/types/izin";
 
-export async function getIzinler(filtre: IzinFiltre) {
-  const response = await api.post<IzinKaydi[]>("/api/izin", {
-    type: "SELECT_IZIN",
-    ...filtre,
-  });
-  return response.data; // interceptor zaten envelope'u soyduysa burada gerçek IzinKaydi[] olur
-}
+const IZIN_ENDPOINT = "/api/izin";
 
-export async function deleteIzin(idIzinGenel: string) {
-  const response = await api.post("/api/izin", {
-    type: "DELETE_IZIN",
-    IDIzinGenel: idIzinGenel,
-  });
-  return response.data;
-}
+export const izinService = {
+  select: async (params: IzinSelectParams): Promise<IzinType[]> => {
+    const { data } = await api.post(IZIN_ENDPOINT, {
+      type: "SELECT_IZIN",
+      ...params,
+    });
+    return data ?? [];
+  },
+
+  insert: async (params: IzinInsertParams) => {
+    const { data } = await api.post(IZIN_ENDPOINT, {
+      type: "INSERT_IZIN",
+      ...params,
+    });
+    return data;
+  },
+
+  delete: async (params: IzinDeleteParams) => {
+    const { data } = await api.post(IZIN_ENDPOINT, {
+      type: "DELETE_IZIN",
+      ...params,
+    });
+    return data;
+  },
+
+  selectTalep: async (
+    params: IzinTalepSelectParams,
+  ): Promise<IzinTalepType[]> => {
+    const { data } = await api.post(IZIN_ENDPOINT, {
+      type: "SELECT_TALEP",
+      ...params,
+    });
+    return data ?? [];
+  },
+
+  insertTalep: async (params: IzinTalepInsertParams) => {
+    const { data } = await api.post(IZIN_ENDPOINT, {
+      type: "INSERT_TALEP",
+      ...params,
+    });
+    return data;
+  },
+
+  updateTalep: async (params: IzinTalepUpdateParams) => {
+    const { data } = await api.post(IZIN_ENDPOINT, {
+      type: "UPDATE_TALEP",
+      ...params,
+    });
+    return data;
+  },
+
+  getIzinSure: async (params: IzinSureParams): Promise<IzinSureType | null> => {
+    const { data } = await api.post(IZIN_ENDPOINT, {
+      type: "GET_IZINSURE",
+      ...params,
+    });
+    // SP tek satır dönüyorsa dizi olarak gelebilir, ilk elemanı normalize ediyoruz.
+    return Array.isArray(data) ? (data[0] ?? null) : (data ?? null);
+  },
+};

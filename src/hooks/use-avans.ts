@@ -1,4 +1,3 @@
-// hooks/use-avans.ts
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { AvansKaydi, AvansTalepKaydi } from "@/types/avans";
 import { api } from "@/lib/axios";
