@@ -4,23 +4,9 @@ import { getDeviceId } from "@/lib/device";
 import { api } from "@/lib/axios";
 import { PDKSSelectRequestType, PDKSSelectResponseType } from "@/types/pdks";
 
-type PdksJsonData = {
-  idBolum: number;
-  idBolumLokasyon: number;
-  idDevice: string;
-  latitude: number;
-  longitude: number;
-  timestamp: number;
-  accuracy: number | null;
-  altitude: number | null;
-  altitudeAccuracy: number | null;
-};
-
 type PdksRequest = {
   type: "INSERT_PDKS_KENDI";
-  params: {
-    jsonData: PdksJsonData;
-  };
+  JsonData: string;
 };
 
 type PdksResponse = {
@@ -45,24 +31,21 @@ export function usePdksMutation() {
     }: PdksMutationParams): Promise<PdksResponse> => {
       const idDevice = await getDeviceId();
       const { coords, timestamp } = position;
-
+      const data = {
+        idBolum,
+        idBolumLokasyon,
+        idDevice,
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        timestamp,
+        accuracy: coords.accuracy,
+        altitude: coords.altitude,
+        altitudeAccuracy: coords.altitudeAccuracy,
+      };
       const body: PdksRequest = {
         type: "INSERT_PDKS_KENDI",
-        params: {
-          jsonData: {
-            idBolum,
-            idBolumLokasyon,
-            idDevice,
-            latitude: coords.latitude,
-            longitude: coords.longitude,
-            timestamp,
-            accuracy: coords.accuracy,
-            altitude: coords.altitude,
-            altitudeAccuracy: coords.altitudeAccuracy,
-          },
-        },
+        JsonData: JSON.stringify(data),
       };
-
       const response = await api.post<PdksResponse>(API_URL, body);
       return response.data as PdksResponse;
     },

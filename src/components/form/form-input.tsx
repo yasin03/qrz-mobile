@@ -62,6 +62,7 @@ type FormInputProps<T extends FieldValues> = {
   disabled?: boolean;
   description?: string;
   className?: string;
+  inputClassName?: string;
   maxLength?: number;
   vertical?: boolean;
   startIcon?: ReactNode; // eklendi
@@ -79,6 +80,7 @@ export function FormInput<T extends FieldValues>({
   disabled,
   description,
   className,
+  inputClassName,
   maxLength,
   vertical = false,
   startIcon, // eklendi
@@ -127,6 +129,7 @@ export function FormInput<T extends FieldValues>({
                   : undefined
               }
               className={cn(isPassword && "pr-10", isTextarea && "py-2")}
+              containerClassName={inputClassName}
             />
             {isPassword && (
               <Pressable

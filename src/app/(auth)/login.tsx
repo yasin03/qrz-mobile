@@ -53,16 +53,13 @@ export default function LoginScreen() {
         {/* Logo */}
         <View className="mb-10 items-center">
           <Image
-            source={require("@/assets/logos/logo-icon.png")}
-            className="h-32 w-auto"
+            source={require("@/assets/logos/logo-pri.png")}
+            className="h-20 w-auto"
             resizeMode="contain"
           />
-          <View className="flex-row items-center justify-center gap-1 mt-4">
-            <Text className="text-5xl font-bold text-qrz-navy">QR</Text>
-            <Text className="text-5xl font-medium text-qrz-blue">Zaman</Text>
-          </View>
-          <Text className="mt-2 text-center text-sm text-slate-500">
-            PERSONEL TAKİBİNİN AKILLI YOLU
+
+          <Text className="mt-6 text-center text-sm text-slate-500">
+            PERSONEL YÖNETİM SİSTEMİ
           </Text>
         </View>
 
@@ -73,6 +70,7 @@ export default function LoginScreen() {
             label="Kullanıcı Adı veya Telefon Numarası"
             placeholder="Kullanıcı adı girin"
             startIcon={<User size={20} color="#64748B" />}
+            inputClassName="h-12"
           />
           <FormInput
             control={control}
@@ -80,12 +78,15 @@ export default function LoginScreen() {
             label="Şifre"
             placeholder="Şifrenizi girin"
             type="password"
+            inputClassName="h-12"
             startIcon={<Lock size={20} color="#64748B" />}
           />
           <Pressable
             className="mb-6 flex-row justify-end"
             onPress={() =>
-              alert(`Şifremi Unuttum sayfası en kısa zamanda eklenecektir. \nAPI :  ${process.env.EXPO_PUBLIC_API_URL}`)
+              alert(
+                `Şifremi Unuttum sayfası en kısa zamanda eklenecektir. \nAPI :  ${process.env.EXPO_PUBLIC_API_URL}`,
+              )
             }
           >
             <Text className="text-sm font-medium text-qrz-blue">
@@ -110,7 +111,7 @@ export default function LoginScreen() {
             </View>
           )}
         </Button>
-       
+
         {loginMutation.isError && (
           <Text className="mt-4 text-center text-sm text-red-500">
             Kullanıcı adı veya şifre hatalı.

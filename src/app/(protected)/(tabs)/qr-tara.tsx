@@ -115,16 +115,19 @@ const QRTara = () => {
       );
 
       if (position.mocked) {
-        alertIfFocused("Hata", "Sahte konum tespit edildi. Kayıt oluşturulamaz.");
+        alertIfFocused(
+          "Hata",
+          "Sahte konum tespit edildi. Kayıt oluşturulamaz.",
+        );
         scanLockRef.current = false;
         return;
       }
 
-/*       await pdksMutation.mutateAsync({
+      await pdksMutation.mutateAsync({
         idBolum,
         idBolumLokasyon,
         position,
-      }); */
+      });
       setScanSuccess(true);
 
       const { latitude, longitude, accuracy } = position.coords;

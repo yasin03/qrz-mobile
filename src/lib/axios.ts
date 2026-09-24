@@ -97,7 +97,6 @@ api.interceptors.response.use(
       );
     }
 
-    // Network error, timeout vs. - orijinal axios hatasini oldugu gibi ilet
     return Promise.reject(error);
   },
 );

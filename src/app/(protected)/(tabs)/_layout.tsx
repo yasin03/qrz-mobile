@@ -29,7 +29,7 @@ export default function ProtectedLayout() {
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="profile">
         <Label>Profilim</Label>
-        <Icon sf="person" md="person" />
+        <Icon sf="person.crop.circle" md="account_circle" />
       </NativeTabs.Trigger>
     </NativeTabs>
   );

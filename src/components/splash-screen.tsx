@@ -97,7 +97,7 @@ export function CustomSplashScreen() {
           className="items-center"
         >
           <Image
-            source={require("@/assets/logos/logo-icon.png")}
+            source={require("@/assets/logos/icon-pri.png")}
             className="absolute h-36 bottom-24 "
             resizeMode="contain"
           />
