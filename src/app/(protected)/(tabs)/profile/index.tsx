@@ -192,29 +192,29 @@ const Index = () => {
           <MenuRow
             icon={<User size={16} color="#64748b" />}
             label="Personel Bilgileri"
-            onPress={() => router.push("/settings/personel-bilgileri")}
+            onPress={() => router.push("/profile/personel-bilgileri")}
           />
           <MenuRow
             icon={<Clock size={16} color="#64748b" />}
             label="Giriş/Çıkış Bilgileri"
-            onPress={() => router.push("/settings/giris-cikis-bilgileri")}
+            onPress={() => router.push("/profile/giris-cikis-bilgileri")}
           />
           <MenuRow
             icon={<Wallet size={16} color="#64748b" />}
             label="Bordro Bilgileri"
-            onPress={() => router.push("/settings/bordro-bilgileri")}
+            onPress={() => router.push("/profile/bordro-bilgileri")}
           />
           <MenuRow
             icon={<MapPin size={16} color="#64748b" />}
             label="Adres Bilgileri"
-            onPress={() => router.push("/settings/adres-bilgileri")}
+            onPress={() => router.push("/profile/adres-bilgileri")}
           />
         </SectionCard>
         <SectionCard title="Bilgilerim">
           <MenuRow
             icon={<Smartphone size={16} color="#64748b" />}
             label="Cihaz Bilgileri"
-            onPress={() => router.push("/settings/cihaz-bilgileri")}
+            onPress={() => router.push("/profile/cihaz-bilgileri")}
             isLast
           />
         </SectionCard>

@@ -144,6 +144,20 @@ function toIzinTipleriOptions(value: unknown): SelectOption[] {
   }));
 }
 
+type TahakkukTipi = {
+  SahaKodu: string;
+  SahaAciklama: string;
+  SahaAciklama2: string | number;
+};
+
+function toTahakkukTipleriOptions(value: unknown): SelectOption[] {
+  if (!Array.isArray(value)) return [];
+  return (value as TahakkukTipi[]).map((item) => ({
+    value: String(item.SahaAciklama2),
+    label: item.SahaAciklama,
+  }));
+}
+
 // ---- GET_PERSONEL_SABIT_TANIMLAR --------------------------------------
 
 async function getPersonelSabitTanimlar(): Promise<SabitTanimlarResponse> {
@@ -160,8 +174,19 @@ async function getIzinTipleri(): Promise<SabitTanimlarResponse> {
   return response.data;
 }
 
+// Tip: "Yardım" → eklenti tipleri, "Kesinti" → kesinti tipleri
+async function getTahakkukTipleri(tip: string): Promise<SabitTanimlarResponse> {
+  const response = await api.post<SabitTanimlarResponse>("/api/genel", {
+    type: "GET_TAHAKKUK_TIPLERI",
+    Tip: tip,
+  });
+  return response.data;
+}
+
 export const personelSabitTanimlarKeys = {
   all: ["personel-sabit-tanimlar"] as const,
+  eklentiTipleri: ["tahakkuk-tipleri", "Yardım"] as const,
+  kesintiTipleri: ["tahakkuk-tipleri", "Kesinti"] as const,
 };
 
 export function usePersonelSabitTanimlar() {
@@ -177,6 +202,18 @@ export function usePersonelSabitTanimlar() {
     staleTime: 1000 * 60 * 60, // 1 saat
   });
 
+  const eklentiQuery = useQuery({
+    queryKey: personelSabitTanimlarKeys.eklentiTipleri,
+    queryFn: () => getTahakkukTipleri("Yardım"),
+    staleTime: 1000 * 60 * 60, // 1 saat
+  });
+
+  const kesintiQuery = useQuery({
+    queryKey: personelSabitTanimlarKeys.kesintiTipleri,
+    queryFn: () => getTahakkukTipleri("Kesinti"),
+    staleTime: 1000 * 60 * 60, // 1 saat
+  });
+
   const data = query.data ?? [];
   const izinData = izinQuery.data ?? [];
  
@@ -188,5 +225,7 @@ export function usePersonelSabitTanimlar() {
     sgkKanunNolar: toSgkKanunNoOptions(data[2]),
     gorevKodlari: toGorevKoduOptions(data[3]),
     izinTipleri: toIzinTipleriOptions(izinData),
+    eklentiTipleri: toTahakkukTipleriOptions(eklentiQuery.data),
+    kesintiTipleri: toTahakkukTipleriOptions(kesintiQuery.data),
   };
 }

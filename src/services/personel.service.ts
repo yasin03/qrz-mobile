@@ -17,3 +17,31 @@ export async function getPersonelDetay(
 
   return personel;
 }
+
+export type AktifPersonel = {
+  IDSubePersonel: string | number;
+  AdSoyad: string;
+  SicilNo?: string;
+  BolumAdi?: string;
+};
+
+// Cevap bazen [[...]] (dataset) bazen [...] olarak dönebiliyor
+function normalizeListResponse<T>(data: unknown): T[] {
+  if (!Array.isArray(data) || data.length === 0) return [];
+  const first = data[0];
+  return Array.isArray(first) ? (first as T[]) : (data as T[]);
+}
+
+export async function getAktifPersonelListesi(params: {
+  IDSube: string | number;
+  Yil: string;
+  Ay: string;
+}): Promise<AktifPersonel[]> {
+  const response = await api.post("/api/personel", {
+    type: "GET_AKTIF_PERSONEL",
+    TcKimlikNo: "",
+    Adi: "",
+    ...params,
+  });
+  return normalizeListResponse<AktifPersonel>(response.data);
+}
