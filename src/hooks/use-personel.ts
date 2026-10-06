@@ -9,7 +9,6 @@ export function usePersonelDetay(
   idSubePersonel: string | number | null | undefined,
 ) {
   const id = idSubePersonel != null ? Number(idSubePersonel) : undefined;
-
   return useQuery({
     queryKey: ["personel-detay", id],
     queryFn: () => getPersonelDetay(id as number),

@@ -4,6 +4,7 @@ import type { PersonelDetay } from "@/types/personel";
 export async function getPersonelDetay(
   idSubePersonel: number,
 ): Promise<PersonelDetay> {
+
   const response = await api.post<PersonelDetay[]>("/api/personel", {
     type: "GET_PERSONEL_DETAY",
     IDSubePersonel: idSubePersonel,
@@ -37,8 +38,9 @@ export async function getAktifPersonelListesi(params: {
   Yil: string;
   Ay: string;
 }): Promise<AktifPersonel[]> {
+  // GET_AKTIF_PERSONEL mobilde (Bearer) yasak; aynı proc'u çağıran mobil tipi kullanılıyor
   const response = await api.post("/api/personel", {
-    type: "GET_AKTIF_PERSONEL",
+    type: "SELECT_PERSONEL_LIST",
     TcKimlikNo: "",
     Adi: "",
     ...params,

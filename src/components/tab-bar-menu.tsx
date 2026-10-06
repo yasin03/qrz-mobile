@@ -3,7 +3,9 @@ import { useRouter, type Href } from "expo-router";
 import {
   CalendarCheck,
   CalendarDays,
+  Receipt,
   HandCoins,
+  IdCard,
   LayoutGrid,
   MinusCircle,
   PlusCircle,
@@ -37,9 +39,11 @@ type MenuItem = {
 const MENU_ITEMS: MenuItem[] = [
   { title: "İzinler", icon: CalendarCheck, iconColor: "#01BBE6", href: "/izinler" },
   { title: "Avanslar", icon: HandCoins, iconColor: "#F59E0B", href: "/avanslar" },
-  { title: "Puantaj", icon: CalendarDays, iconColor: "#8B5CF6", href: "/puantaj" },
+  { title: "Özlük", icon: IdCard, iconColor: "#6366F1", href: "/ozluk" },
   { title: "Eklentiler", icon: PlusCircle, iconColor: "#10B981", href: "/eklentiler" },
   { title: "Kesintiler", icon: MinusCircle, iconColor: "#EF4444", href: "/kesintiler" },
+  { title: "Bordro", icon: Receipt, iconColor: "#0EA5E9", href: "/bordro" },
+  { title: "Puantaj", icon: CalendarDays, iconColor: "#8B5CF6", href: "/puantaj" },
 ];
 
 type Props = {
