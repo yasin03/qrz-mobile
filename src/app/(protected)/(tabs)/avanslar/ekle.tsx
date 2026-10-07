@@ -3,7 +3,6 @@ import {
   View,
   Text,
   Pressable,
-  ScrollView,
   ActivityIndicator,
 } from "react-native";
 import { router } from "expo-router";
@@ -16,7 +15,6 @@ import { format } from "date-fns";
 import { useAuthStore } from "@/stores/auth-store";
 import { useCreateAvansTalep } from "@/hooks/use-avans";
 import { FormInput } from "@/components/form/form-input";
-import { NativeDatePicker } from "@/components/native-date-picker";
 import { FormDatePicker } from "@/components/form/form-date-picker";
 
 const avansTalepSchema = z.object({
@@ -84,7 +82,7 @@ export default function AvansEkle() {
   };
 
   return (
-    <ScrollView className="mt-4 p-6" keyboardShouldPersistTaps="handled">
+    <View className="bg-white p-6 pt-8">
       <View className="flex-row items-center justify-between">
         <Text className="text-lg font-semibold text-qrz-navy">
           Yeni Avans Talebi
@@ -146,6 +144,6 @@ export default function AvansEkle() {
           <Text className="text-sm font-medium text-white">Talebi Gönder</Text>
         )}
       </Pressable>
-    </ScrollView>
+    </View>
   );
 }

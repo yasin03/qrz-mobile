@@ -16,7 +16,7 @@ export default function Izinler() {
   const user = useAuthStore((state) => state.user);
   const [tabValue, setTabValue] = useState("talep");
   return (
-    <SafeAreaView edges={["bottom"]} className="flex-1 bg-white px-4">
+    <SafeAreaView edges={[]} className="flex-1 bg-white px-4">
       <DetailScreenHeader
         title="İzinler"
         right={

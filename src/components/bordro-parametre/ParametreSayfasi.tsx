@@ -14,7 +14,7 @@ export function ParametreSayfasi({ tur }: { tur: ParametreTur }) {
   const { isPersonel } = useRole();
 
   return (
-    <SafeAreaView edges={["bottom"]} className="flex-1 bg-slate-50">
+    <SafeAreaView edges={[]} className="flex-1 bg-slate-50">
       <DetailScreenHeader
         title={isPersonel ? config.personelBaslik : config.baslik}
         right={

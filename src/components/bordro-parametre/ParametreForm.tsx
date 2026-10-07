@@ -169,7 +169,7 @@ export function ParametreForm({ tur }: { tur: ParametreTur }) {
   };
 
   return (
-    <ScrollView className="mt-4 p-6" keyboardShouldPersistTaps="handled">
+    <ScrollView className="flex-1 bg-white p-6 pt-10" keyboardShouldPersistTaps="handled">
       <View className="flex-row items-center justify-between">
         <Text className="text-lg font-semibold text-qrz-navy">
           {isEdit ? `${config.tekil} Düzenle` : `Yeni ${config.tekil}`}

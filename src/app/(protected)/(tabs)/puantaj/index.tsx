@@ -12,7 +12,7 @@ export default function Puantaj() {
   const isYoneticiVeyaAdmin = isAdmin || isYonetici;
 
   return (
-    <SafeAreaView edges={["bottom"]} className="flex-1 bg-slate-50">
+    <SafeAreaView edges={[]} className="flex-1 bg-slate-50">
       <DetailScreenHeader title={isYoneticiVeyaAdmin ? "Puantaj" : "Puantajım"} />
 
       {isYoneticiVeyaAdmin ? (

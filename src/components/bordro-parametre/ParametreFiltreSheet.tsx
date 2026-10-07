@@ -1,3 +1,4 @@
+import { SheetPanel } from "@/components/ui/sheet-panel";
 import { useEffect, useMemo } from "react";
 import { Modal, Pressable, Text, View } from "react-native";
 import { X } from "lucide-react-native";
@@ -49,63 +50,65 @@ export function ParametreFiltreSheet({ tur, visible, filtre, tipler, onClose, on
   });
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable className="flex-1 justify-end bg-black/40" onPress={onClose}>
-        <Pressable
-          onPress={() => {}}
-          className="rounded-t-3xl bg-white px-5 pt-4"
-          style={{ paddingBottom: insets.bottom + 12 }}
-        >
-          <View className="mb-3 flex-row items-center justify-between">
-            <Text className="text-base font-bold text-qrz-navy">Filtrele</Text>
-            <Pressable
-              onPress={onClose}
-              hitSlop={10}
-              className="h-8 w-8 items-center justify-center rounded-full bg-slate-100"
-            >
-              <X size={18} color="#64748B" />
-            </Pressable>
-          </View>
-
-          <View className="gap-3">
-            <View className="flex-row gap-2">
-              <View className="flex-1">
-                <FormDatePicker control={control} name="Tarih1" label="Başlangıç" />
-              </View>
-              <View className="flex-1">
-                <FormDatePicker control={control} name="Tarih2" label="Bitiş" />
-              </View>
+        <SheetPanel>
+          <Pressable
+            onPress={() => {}}
+            className="rounded-t-3xl bg-white px-5 pt-4"
+            style={{ paddingBottom: insets.bottom + 12 }}
+          >
+            <View className="mb-3 flex-row items-center justify-between">
+              <Text className="text-base font-bold text-qrz-navy">Filtrele</Text>
+              <Pressable
+                onPress={onClose}
+                hitSlop={10}
+                className="h-8 w-8 items-center justify-center rounded-full bg-slate-100"
+              >
+                <X size={18} color="#64748B" />
+              </Pressable>
             </View>
 
-            <FormSelect
-              control={control}
-              name="Tip"
-              label={config.tipLabel}
-              options={tipOptions}
-            />
+            <View className="gap-3">
+              <View className="flex-row gap-2">
+                <View className="flex-1">
+                  <FormDatePicker control={control} name="Tarih1" label="Başlangıç" />
+                </View>
+                <View className="flex-1">
+                  <FormDatePicker control={control} name="Tarih2" label="Bitiş" />
+                </View>
+              </View>
 
-            {config.netVar && (
               <FormSelect
                 control={control}
-                name="Net"
-                label="Net / Brüt"
-                options={NET_SECENEKLERI}
+                name="Tip"
+                label={config.tipLabel}
+                options={tipOptions}
               />
-            )}
-          </View>
 
-          <View className="mt-5 flex-row gap-3">
-            <Pressable
-              onPress={() => reset(getDefaultParametreFiltre())}
-              className="flex-1 items-center rounded-xl border border-slate-200 py-3"
-            >
-              <Text className="text-sm font-medium text-slate-600">Sıfırla</Text>
-            </Pressable>
-            <Pressable onPress={uygula} className="flex-1 items-center rounded-xl bg-qrz-navy py-3">
-              <Text className="text-sm font-medium text-white">Uygula</Text>
-            </Pressable>
-          </View>
-        </Pressable>
+              {config.netVar && (
+                <FormSelect
+                  control={control}
+                  name="Net"
+                  label="Net / Brüt"
+                  options={NET_SECENEKLERI}
+                />
+              )}
+            </View>
+
+            <View className="mt-5 flex-row gap-3">
+              <Pressable
+                onPress={() => reset(getDefaultParametreFiltre())}
+                className="flex-1 items-center rounded-xl border border-slate-200 py-3"
+              >
+                <Text className="text-sm font-medium text-slate-600">Sıfırla</Text>
+              </Pressable>
+              <Pressable onPress={uygula} className="flex-1 items-center rounded-xl bg-qrz-navy py-3">
+                <Text className="text-sm font-medium text-white">Uygula</Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </SheetPanel>
       </Pressable>
     </Modal>
   );

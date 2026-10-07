@@ -11,7 +11,7 @@ export default function Bildirimler() {
   const isYoneticiVeyaAdmin = isAdmin || isYonetici;
   const user = useAuthStore((state) => state.user);
   return (
-    <SafeAreaView edges={["bottom"]} className="flex-1 bg-white px-4">
+    <SafeAreaView edges={[]} className="flex-1 bg-white px-4">
       <DetailScreenHeader title="Bildirimler" />
       <View className="flex-1 items-center justify-center">
         <Text className="text-lg font-medium text-gray-500">

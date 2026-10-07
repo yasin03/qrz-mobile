@@ -13,7 +13,7 @@ export default function PersonelBordroDetay() {
   if (isPersonel) return <Redirect href="/bordro" />;
 
   return (
-    <SafeAreaView edges={["bottom"]} className="flex-1 bg-slate-50">
+    <SafeAreaView edges={[]} className="flex-1 bg-slate-50">
       <DetailScreenHeader title="Personel Bordrosu" />
       <BordroDetay
         idSubePersonel={id}

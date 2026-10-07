@@ -1,4 +1,4 @@
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { RefreshControl, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   Bell,
@@ -6,81 +6,17 @@ import {
   CalendarX,
   Clock,
   Flag,
-  Fingerprint,
-  DollarSign,
-  QrCode,
-  User,
   ShieldCheck,
-  UserCircle,
 } from "lucide-react-native";
 
 import { Badge } from "@/components/ui/badge";
 import { useAuthStore } from "@/stores/auth-store";
-import { useRouter, Href } from "expo-router";
+import { useRouter } from "expo-router";
 import { usePdksSelect } from "@/hooks/use-pdks";
-
-type ShortcutItem = {
-  key: string;
-  icon: React.ComponentType<{ size?: number; color?: string }>;
-  iconColor: string;
-  title: string;
-  subtitle: string;
-  badge?: number;
-  url: Href;
-};
-
-// --- Kısayol kart verisi (şimdilik statik/default) ---
-const shortcuts: readonly ShortcutItem[] = [
-  {
-    key: "izin",
-    icon: CalendarCheck,
-    iconColor: "#3B82F6",
-    title: "İzin Bilgileri",
-    subtitle: "İzin durumlarınızı görüntüleyin",
-    url: "/(protected)/izinler",
-  },
-  {
-    key: "avans",
-    icon: DollarSign,
-    iconColor: "#3B82F6",
-    title: "Avans Bilgileri",
-    subtitle: "Avans taleplerinizi yönetin",
-    url: "/(protected)/avanslar",
-  },
-  {
-    key: "pdks",
-    icon: Fingerprint,
-    iconColor: "#3B82F6",
-    title: "PDKS Bilgileri",
-    subtitle: "Giriş/çıkış kayıtlarınızı görün",
-    url: "/(protected)/(tabs)/pdks",
-  },
-  {
-    key: "qr",
-    icon: QrCode,
-    iconColor: "#3B82F6",
-    title: "QR İşlemleri",
-    subtitle: "QR okut ve işlemlerini gerçekleştir",
-    url: "/(protected)/(tabs)/qr-tara",
-  },
-  {
-    key: "bildirim",
-    icon: Bell,
-    iconColor: "#3B82F6",
-    title: "Bildirimler",
-    subtitle: "Bildirimlerinizi inceleyin",
-    badge: 3,
-    url: "/(protected)/bildirimler",
-  },
-  {
-    key: "profil",
-    icon: User,
-    iconColor: "#3B82F6",
-    title: "Profilim",
-    subtitle: "Kişisel bilgilerinizi görüntüleyin",
-    url: "/(protected)/(tabs)/profile",
-  },
-];
+import { useRole } from "@/hooks/use-role";
+import { usePersonelDashboard, useYoneticiDashboard } from "@/hooks/use-dashboard";
+import { PersonelDashboard } from "@/components/dashboard/PersonelDashboard";
+import { YoneticiDashboard } from "@/components/dashboard/YoneticiDashboard";
 
 export default function PersonnelHomeScreen() {
   const user = useAuthStore((state) => state.user);
@@ -95,6 +31,20 @@ export default function PersonnelHomeScreen() {
     new Date().toISOString().split("T")[0],
   );
   const pdks = pdksData[0] || { Giris: null, Cikis: null, Tarih: null };
+
+  // Personel kendi özetini, admin / yönetici şube özetini görür
+  const { isPersonel } = useRole();
+  const now = new Date();
+  const personelOzet = usePersonelDashboard(isPersonel);
+  const yoneticiOzet = useYoneticiDashboard(
+    {
+      IDSube: user?.IDSube,
+      Yil: String(now.getFullYear()),
+      Ay: String(now.getMonth() + 1).padStart(2, "0"),
+    },
+    !isPersonel,
+  );
+  const ozet = isPersonel ? personelOzet : yoneticiOzet;
 
   return (
     <View className="flex-1 bg-qrz-navy">
@@ -117,7 +67,7 @@ export default function PersonnelHomeScreen() {
             </Badge>
           </View>
 
-          <TouchableOpacity onPress={() => router.push("/(protected)/bildirimler")} className="relative">
+          <TouchableOpacity onPress={() => router.push("/bildirimler")} className="relative">
             <Bell size={24} color="white" />
             <Text className="absolute -top-1 -right-1 text-xs text-white font-bold bg-red-500 rounded-full w-4 h-4 text-center">
               3
@@ -126,7 +76,7 @@ export default function PersonnelHomeScreen() {
         </View>
 
         {/* stat kartının header içine taşan üst boşluğu */}
-        <View className="h-16" />
+        <View className="h-10" />
       </SafeAreaView>
 
       <View className="flex-1 bg-slate-50 rounded-t-3xl  pt-6">
@@ -134,6 +84,9 @@ export default function PersonnelHomeScreen() {
           className="flex-1"
           contentContainerClassName="pb-8"
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={ozet.isRefetching} onRefresh={ozet.refetch} />
+          }
         >
           {/* --- Üste binen beyaz stat kartı --- */}
           <View className="mx-4 rounded-2xl bg-white px-4 py-5 shadow-sm shadow-black/10">
@@ -169,17 +122,12 @@ export default function PersonnelHomeScreen() {
             </View>
           </View>
 
-          {/* --- Kısayollar --- */}
-          <View className="px-4 mt-6">
-            <Text className="text-lg font-bold text-qrz-navy mb-3">
-              Kısayollar
-            </Text>
-
-            <View className="flex-row flex-wrap justify-between">
-              {shortcuts.map(({ key, ...item }) => (
-                <ShortcutCard key={key} {...item} />
-              ))}
-            </View>
+          <View className="mt-4">
+            {isPersonel ? (
+              <PersonelDashboard data={personelOzet.data} loading={personelOzet.isLoading} />
+            ) : (
+              <YoneticiDashboard data={yoneticiOzet.data} loading={yoneticiOzet.isLoading} />
+            )}
           </View>
         </ScrollView>
       </View>
@@ -224,36 +172,5 @@ function StatItem({
         {hint}
       </Text>
     </View>
-  );
-}
-
-// --- Kısayol kartı (2 sütunlu grid'deki her kutu) ---
-function ShortcutCard({
-  icon: Icon,
-  iconColor,
-  title,
-  subtitle,
-  badge,
-  url,
-}: ShortcutItem) {
-  const router = useRouter();
-  return (
-    <TouchableOpacity
-      className="w-[48%] mb-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm shadow-black/5"
-      activeOpacity={0.7}
-      onPress={() => router.push(url)}
-    >
-      <View className="flex-row items-start justify-between">
-        <Icon size={26} color={iconColor} />
-        {badge ? (
-          <View className="bg-blue-500 rounded-full w-5 h-5 items-center justify-center">
-            <Text className="text-white text-[10px] font-bold">{badge}</Text>
-          </View>
-        ) : null}
-      </View>
-
-      <Text className="mt-3 text-[15px] font-bold text-qrz-navy">{title}</Text>
-      <Text className="mt-1 text-xs text-slate-500 leading-4">{subtitle}</Text>
-    </TouchableOpacity>
   );
 }

@@ -3,7 +3,6 @@ import {
   View,
   Text,
   Pressable,
-  ScrollView,
   ActivityIndicator,
 } from "react-native";
 import { router } from "expo-router";
@@ -19,6 +18,9 @@ import { usePersonelSabitTanimlar } from "@/hooks/use-sabit-tanimlar";
 import { FormInput } from "@/components/form/form-input";
 import { FormSelect } from "@/components/form/form-select";
 import { FormDatePicker } from "@/components/form/form-date-picker";
+import { cn } from "@/lib/utils";
+
+const YILLIK_IZIN_KODU = "YI";
 
 const izinTalepSchema = z
   .object({
@@ -63,6 +65,7 @@ export default function IzinEkle() {
     },
   });
 
+  const isYillikIzin = watch("Aciklama") === YILLIK_IZIN_KODU;
   const baslangic = watch("BaslangicTarihi");
   const bitis = watch("BitisTarihi");
 
@@ -99,7 +102,7 @@ export default function IzinEkle() {
   };
 
   return (
-    <ScrollView className="mt-4 p-6" keyboardShouldPersistTaps="handled">
+    <View className="bg-white p-6 pt-8">
       <View className="flex-row items-center justify-between">
         <Text className="text-lg font-semibold text-qrz-navy">
           Yeni İzin Talebi
@@ -109,33 +112,6 @@ export default function IzinEkle() {
         </Pressable>
       </View>
 
-      {izinSureLoading ? (
-        <View className="mt-4 items-center rounded-lg border border-gray-100 bg-gray-50 py-4">
-          <ActivityIndicator size="small" />
-        </View>
-      ) : izinSure ? (
-        <View className="mt-4 flex-row justify-between rounded-lg border border-gray-100 bg-gray-50 px-4 py-3">
-          <View>
-            <Text className="text-[11px] text-gray-500">Toplam Hak</Text>
-            <Text className="text-sm font-semibold text-qrz-navy">
-              {izinSure.ToplamIzinHakki}
-            </Text>
-          </View>
-          <View>
-            <Text className="text-[11px] text-gray-500">Kullanılan</Text>
-            <Text className="text-sm font-semibold text-qrz-navy">
-              {izinSure.ToplamKullanilanIzin}
-            </Text>
-          </View>
-          <View>
-            <Text className="text-[11px] text-gray-500">Kalan</Text>
-            <Text className="text-sm font-semibold text-qrz-navy">
-              {izinSure.ToplamKalanIzin}
-            </Text>
-          </View>
-        </View>
-      ) : null}
-
       <View className="mt-6 gap-4">
         <FormSelect
           control={control}
@@ -143,6 +119,29 @@ export default function IzinEkle() {
           label="İzin Tipi"
           options={izinTipleri ?? []}
         />
+
+        {isYillikIzin && (
+          <View className="gap-2 rounded-xl border border-slate-100 bg-slate-50 p-3">
+            <Text className="text-sm font-semibold text-qrz-navy">
+              Yıllık İzin Durumu
+            </Text>
+
+            {izinSureLoading ? (
+              <ActivityIndicator size="small" color="#052346" className="py-3" />
+            ) : izinSure ? (
+              <View className="flex-row flex-wrap justify-between gap-y-2">
+                <IzinStat label="Kıdem Yılı" value={izinSure.IzinKidemYili} />
+                <IzinStat label="Toplam Hak" value={izinSure.ToplamIzinHakki} />
+                <IzinStat label="Bu Yıl Kullanılan" value={izinSure.KullanilanIzin} />
+                <IzinStat label="Geçmiş Yıl Kullanılan" value={izinSure.oKullanilanIzin} />
+                <IzinStat label="Toplam Kullanılan" value={izinSure.ToplamKullanilanIzin} />
+                <IzinStat label="Kalan İzin" value={izinSure.ToplamKalanIzin} highlight />
+              </View>
+            ) : (
+              <Text className="text-sm text-slate-500">İzin bilgisi bulunamadı.</Text>
+            )}
+          </View>
+        )}
 
         <View className="flex-row gap-3">
           <View className="flex-1">
@@ -197,6 +196,36 @@ export default function IzinEkle() {
           <Text className="text-sm font-medium text-white">Talebi Gönder</Text>
         )}
       </Pressable>
-    </ScrollView>
+    </View>
+  );
+}
+
+type IzinStatProps = {
+  label: string;
+  value: number | string | null | undefined;
+  highlight?: boolean;
+};
+
+// Admin'deki TalepEkle ile aynı yıllık izin kutucuğu
+function IzinStat({ label, value, highlight }: IzinStatProps) {
+  return (
+    <View
+      className={cn(
+        "w-[32%] rounded-lg border px-2.5 py-2",
+        highlight ? "border-qrz-blue/40 bg-qrz-light" : "border-slate-200 bg-white",
+      )}
+    >
+      <Text className="text-[11px] leading-tight text-slate-500" numberOfLines={2}>
+        {label}
+      </Text>
+      <Text
+        className={cn(
+          "mt-0.5 text-base font-semibold",
+          highlight ? "text-qrz-navy" : "text-slate-800",
+        )}
+      >
+        {value ?? 0}
+      </Text>
+    </View>
   );
 }

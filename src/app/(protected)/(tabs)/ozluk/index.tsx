@@ -14,7 +14,7 @@ export default function Ozluk() {
   // Admin / yönetici: önce personel seçer, detay /ozluk/[id] ekranında açılır
   if (!isPersonel) {
     return (
-      <SafeAreaView edges={["bottom"]} className="flex-1 bg-slate-50">
+      <SafeAreaView edges={[]} className="flex-1 bg-slate-50">
         <DetailScreenHeader title="Personel Özlük Bilgileri" />
         <OzlukPersonelListesi />
       </SafeAreaView>
@@ -22,7 +22,7 @@ export default function Ozluk() {
   }
 
   return (
-    <SafeAreaView edges={["bottom"]} className="flex-1 bg-slate-50">
+    <SafeAreaView edges={[]} className="flex-1 bg-slate-50">
       <DetailScreenHeader title="Özlük Bilgilerim" />
       {user?.IDSubePersonel ? (
         <OzlukBilgileri idSubePersonel={user.IDSubePersonel} />

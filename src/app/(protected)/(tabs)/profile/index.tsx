@@ -1,10 +1,8 @@
 import { useMemo } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
 import {
-  SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import * as Device from "expo-device";
 import {
   LogOut,
   Building2,
@@ -17,13 +15,10 @@ import {
   Clock,
   Wallet,
   MapPin,
-  UserCircle,
 } from "lucide-react-native";
 import { useAuthStore } from "@/stores/auth-store";
 import { Badge } from "@/components/ui/badge";
-import { usePersonelDetay } from "@/hooks/use-personel";
 import { useRouter } from "expo-router";
-import { ThemeToggle } from "@/components/theme-toggle";
 
 function getInitials(name?: string) {
   if (!name) return "?";
@@ -49,39 +44,6 @@ function ScanFrameAvatar({ initials }: { initials: string }) {
 
       {/* Aktif oturum göstergesi */}
       <View className="absolute bottom-0.5 right-0.5 h-4 w-4 rounded-full border-2 border-qrz-navy bg-blue-400" />
-    </View>
-  );
-}
-
-function InfoRow({
-  icon,
-  label,
-  value,
-  isLast,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string | null;
-  isLast?: boolean;
-}) {
-  return (
-    <View
-      className={`flex-row items-center justify-between py-3.5 ${
-        isLast ? "" : "border-b border-slate-100"
-      }`}
-    >
-      <View className="flex-row items-center gap-3">
-        <View className="h-9 w-9 items-center justify-center rounded-full bg-slate-100">
-          {icon}
-        </View>
-        <Text className="text-sm text-slate-500">{label}</Text>
-      </View>
-      <Text
-        className="max-w-[55%] text-right text-sm font-medium text-slate-900"
-        numberOfLines={1}
-      >
-        {value}
-      </Text>
     </View>
   );
 }
@@ -162,7 +124,7 @@ const Index = () => {
     <View className="flex-1 bg-qrz-navy">
       {/* Navy başlık — status bar'a kadar tam bleed */}
       <View
-        style={{ paddingTop: insets.top + 30 }}
+        style={{ paddingTop: insets.top + 20 }}
         className="flex-row items-center p-10 gap-6"
       >
         <ScanFrameAvatar initials={initials} />

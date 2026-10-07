@@ -1,5 +1,5 @@
 import * as React from "react";
-import { View, TextInput, Platform, useColorScheme } from "react-native";
+import { View, TextInput, Platform } from "react-native";
 import { cn } from "@/lib/utils";
 
 type InputProps = React.ComponentProps<typeof TextInput> & {
@@ -13,7 +13,6 @@ const Input = React.forwardRef<TextInput, InputProps>(
     { className, containerClassName, startIcon, endIcon, editable, ...props },
     ref,
   ) => {
-    const colorScheme = useColorScheme();
     return (
       <View
         className={cn(
@@ -36,7 +35,7 @@ const Input = React.forwardRef<TextInput, InputProps>(
             }),
             className,
           )}
-          placeholderTextColor={colorScheme === "dark" ? "#94a3b8" : "#64748B"}
+          placeholderTextColor="#64748B"
           {...props}
         />
 

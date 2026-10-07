@@ -1,3 +1,4 @@
+import { SheetPanel } from "@/components/ui/sheet-panel";
 import { useMemo, useState } from "react";
 import { View, Text, Pressable, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -195,60 +196,62 @@ const Index = () => {
       <Modal
         visible={filterVisible}
         transparent
-        animationType="slide"
+        animationType="fade"
         onRequestClose={cancelFilter}
       >
         <View className="flex-1 justify-end bg-black/40">
-          <View className="rounded-t-3xl bg-white px-5 pb-8 pt-5">
-            {/* Modal Header */}
-            <View className="mb-6 flex-row items-center justify-between">
-              <Text className="text-lg font-semibold text-qrz-navy">
-                Tarih Filtresi
-              </Text>
+          <SheetPanel>
+            <View className="rounded-t-3xl bg-white px-5 pb-8 pt-5">
+              {/* Modal Header */}
+              <View className="mb-6 flex-row items-center justify-between">
+                <Text className="text-lg font-semibold text-qrz-navy">
+                  Tarih Filtresi
+                </Text>
 
-              <Pressable
-                onPress={cancelFilter}
-                className="rounded-full bg-gray-100 p-2"
-              >
-                <X size={18} color="#64748b" />
-              </Pressable>
-            </View>
-
-            <View className="flex-row gap-2 mb-4">
-              <View className="flex-1">
-                <Text className="mb-1 text-xs text-gray-500">Başlangıç</Text>
-                <NativeDatePicker
-                  value={tempStartDate}
-                  onChange={onStartDateChange}
-                />
+                <Pressable
+                  onPress={cancelFilter}
+                  className="rounded-full bg-gray-100 p-2"
+                >
+                  <X size={18} color="#64748b" />
+                </Pressable>
               </View>
 
-              <View className="flex-1">
-                <Text className="mb-1 text-xs text-gray-500">Bitiş</Text>
-                <NativeDatePicker
-                  value={tempEndDate}
-                  onChange={onEndDateChange}
-                />
+              <View className="flex-row gap-2 mb-4">
+                <View className="flex-1">
+                  <Text className="mb-1 text-xs text-gray-500">Başlangıç</Text>
+                  <NativeDatePicker
+                    value={tempStartDate}
+                    onChange={onStartDateChange}
+                  />
+                </View>
+
+                <View className="flex-1">
+                  <Text className="mb-1 text-xs text-gray-500">Bitiş</Text>
+                  <NativeDatePicker
+                    value={tempEndDate}
+                    onChange={onEndDateChange}
+                  />
+                </View>
+              </View>
+
+              {/* Buttons */}
+              <View className="flex-row gap-3">
+                <Pressable
+                  onPress={cancelFilter}
+                  className="flex-1 items-center rounded-xl border border-gray-200 py-3"
+                >
+                  <Text className="font-medium text-gray-600">Vazgeç</Text>
+                </Pressable>
+
+                <Pressable
+                  onPress={applyFilter}
+                  className="flex-1 items-center rounded-xl bg-qrz-navy py-3"
+                >
+                  <Text className="font-medium text-white">Uygula</Text>
+                </Pressable>
               </View>
             </View>
-
-            {/* Buttons */}
-            <View className="flex-row gap-3">
-              <Pressable
-                onPress={cancelFilter}
-                className="flex-1 items-center rounded-xl border border-gray-200 py-3"
-              >
-                <Text className="font-medium text-gray-600">Vazgeç</Text>
-              </Pressable>
-
-              <Pressable
-                onPress={applyFilter}
-                className="flex-1 items-center rounded-xl bg-qrz-navy py-3"
-              >
-                <Text className="font-medium text-white">Uygula</Text>
-              </Pressable>
-            </View>
-          </View>
+          </SheetPanel>
         </View>
       </Modal>
     </SafeAreaView>

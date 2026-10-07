@@ -1,3 +1,4 @@
+import { SheetPanel } from "@/components/ui/sheet-panel";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { Check } from "lucide-react-native";
@@ -62,30 +63,32 @@ export function FormSelect<T extends FieldValues>({
               <Text>{selected?.label ?? (isLoading ? "Yükleniyor..." : placeholder)}</Text>
             </Button>
 
-            <Modal visible={visible} transparent animationType="slide" onRequestClose={() => setVisible(false)}>
+            <Modal visible={visible} transparent animationType="fade" onRequestClose={() => setVisible(false)}>
               <Pressable className="flex-1 justify-end bg-black/40" onPress={() => setVisible(false)}>
-                <Pressable className="max-h-[70%] rounded-t-2xl bg-white p-4">
-                  {label && <Text className="mb-3 text-base font-medium text-qrz-navy">{label}</Text>}
-                  <FlatList
-                    data={options}
-                    keyExtractor={(item) => item.value}
-                    renderItem={({ item }) => {
-                      const isSelected = item.value === value;
-                      return (
-                        <TouchableOpacity
-                          className="flex-row items-center justify-between border-b border-gray-100 py-3"
-                          onPress={() => {
-                            onChange(item.value);
-                            setVisible(false);
-                          }}
-                        >
-                          <Text>{item.label}</Text>
-                          {isSelected && <Check size={18} />}
-                        </TouchableOpacity>
-                      );
-                    }}
-                  />
-                </Pressable>
+                <SheetPanel className="max-h-[70%]">
+                  <Pressable className="flex-shrink rounded-t-2xl bg-white p-4">
+                    {label && <Text className="mb-3 text-base font-medium text-qrz-navy">{label}</Text>}
+                    <FlatList
+                      data={options}
+                      keyExtractor={(item) => item.value}
+                      renderItem={({ item }) => {
+                        const isSelected = item.value === value;
+                        return (
+                          <TouchableOpacity
+                            className="flex-row items-center justify-between border-b border-gray-100 py-3"
+                            onPress={() => {
+                              onChange(item.value);
+                              setVisible(false);
+                            }}
+                          >
+                            <Text>{item.label}</Text>
+                            {isSelected && <Check size={18} />}
+                          </TouchableOpacity>
+                        );
+                      }}
+                    />
+                  </Pressable>
+                </SheetPanel>
               </Pressable>
             </Modal>
           </Field>

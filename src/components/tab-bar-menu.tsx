@@ -141,7 +141,7 @@ export function TabBarMenu({ open, onOpenChange, bottomInset }: Props) {
           accessibilityRole="button"
           accessibilityLabel={open ? "Menüyü kapat" : "Menüyü aç"}
           accessibilityState={{ expanded: open }}
-          className="items-center justify-center rounded-full border-4 border-card bg-qrz-navy shadow-lg shadow-black/25 dark:bg-qrz-blue"
+          className="items-center justify-center rounded-full border-4 border-card bg-qrz-navy shadow-lg shadow-black/25"
           style={{ width: MENU_BUTTON_SIZE, height: MENU_BUTTON_SIZE }}
         >
           <Animated.View

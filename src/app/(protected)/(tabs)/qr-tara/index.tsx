@@ -45,7 +45,7 @@ const QRTara = () => {
     })();
   }, []);
 
-  const handleNewPagePress = () => router.push("/(protected)/location");
+  const handleNewPagePress = () => router.push("/location");
 
   function parseQrPayload(qrText: string) {
     const [idBolumLokasyon, idBolum, enlem, boylam] = qrText.split("|");

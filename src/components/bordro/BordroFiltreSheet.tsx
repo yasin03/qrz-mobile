@@ -1,3 +1,4 @@
+import { SheetPanel } from "@/components/ui/sheet-panel";
 import { Modal, Pressable, Text, View } from "react-native";
 import { X } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -29,40 +30,42 @@ export function BordroFiltreSheet({
   ];
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable className="flex-1 justify-end bg-black/40" onPress={onClose}>
-        <Pressable
-          onPress={() => {}}
-          className="rounded-t-3xl bg-white px-5 pt-4"
-          style={{ paddingBottom: insets.bottom + 12 }}
-        >
-          <View className="mb-3 flex-row items-center justify-between">
-            <Text className="text-base font-bold text-qrz-navy">Görünüm</Text>
-            <Pressable
-              onPress={onClose}
-              hitSlop={10}
-              className="h-8 w-8 items-center justify-center rounded-full bg-slate-100"
-            >
-              <X size={18} color="#64748B" />
-            </Pressable>
-          </View>
-
-          <View className="gap-2">
-            {satirlar.map((s) => (
-              <View
-                key={s.label}
-                className="flex-row items-center justify-between rounded-xl bg-slate-50 px-3 py-3"
+        <SheetPanel>
+          <Pressable
+            onPress={() => {}}
+            className="rounded-t-3xl bg-white px-5 pt-4"
+            style={{ paddingBottom: insets.bottom + 12 }}
+          >
+            <View className="mb-3 flex-row items-center justify-between">
+              <Text className="text-base font-bold text-qrz-navy">Görünüm</Text>
+              <Pressable
+                onPress={onClose}
+                hitSlop={10}
+                className="h-8 w-8 items-center justify-center rounded-full bg-slate-100"
               >
-                <Text className="text-sm font-medium text-slate-700">{s.label}</Text>
-                <Switch checked={s.value} onCheckedChange={s.onChange} />
-              </View>
-            ))}
-          </View>
+                <X size={18} color="#64748B" />
+              </Pressable>
+            </View>
 
-          <Pressable onPress={onClose} className="mt-4 items-center rounded-xl bg-qrz-navy py-3">
-            <Text className="text-sm font-medium text-white">Tamam</Text>
+            <View className="gap-2">
+              {satirlar.map((s) => (
+                <View
+                  key={s.label}
+                  className="flex-row items-center justify-between rounded-xl bg-slate-50 px-3 py-3"
+                >
+                  <Text className="text-sm font-medium text-slate-700">{s.label}</Text>
+                  <Switch checked={s.value} onCheckedChange={s.onChange} />
+                </View>
+              ))}
+            </View>
+
+            <Pressable onPress={onClose} className="mt-4 items-center rounded-xl bg-qrz-navy py-3">
+              <Text className="text-sm font-medium text-white">Tamam</Text>
+            </Pressable>
           </Pressable>
-        </Pressable>
+        </SheetPanel>
       </Pressable>
     </Modal>
   );

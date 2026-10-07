@@ -11,7 +11,7 @@ export default function Bordro() {
   const { isPersonel } = useRole();
 
   return (
-    <SafeAreaView edges={["bottom"]} className="flex-1 bg-slate-50">
+    <SafeAreaView edges={[]} className="flex-1 bg-slate-50">
       <DetailScreenHeader title={isPersonel ? "Bordrom" : "Bordro"} />
       {isPersonel ? (
         <BordroDetay idSubePersonel={user?.IDSubePersonel} />
