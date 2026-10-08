@@ -51,10 +51,10 @@ export default function AdresBilgileriScreen() {
     <View className="flex-1 bg-white">
       <DetailScreenHeader title="Adres Bilgileri" />
       <ScrollView className="flex-1 px-4" contentContainerClassName="py-4 gap-1">
-        <FormInput control={control} name="Il" label="İl" disabled />
-        <FormInput control={control} name="Ilce" label="İlçe" disabled />
-        <FormInput control={control} name="Adres" label="Adres" type="textarea" disabled />
-        <FormInput control={control} name="Telefon" label="Telefon" format="tel" disabled />
+        <FormInput control={control} name="Il" label="İl" disabled vertical />
+        <FormInput control={control} name="Ilce" label="İlçe" disabled vertical />
+        <FormInput control={control} name="Adres" label="Adres" type="textarea" disabled vertical />
+        <FormInput control={control} name="Telefon" label="Telefon" format="tel" disabled vertical />
       </ScrollView>
     </View>
   );

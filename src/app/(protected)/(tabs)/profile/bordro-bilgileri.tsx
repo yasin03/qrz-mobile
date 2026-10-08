@@ -33,13 +33,12 @@ export default function BordroBilgileriScreen() {
   const { ucretTipleri, odemeSekilleri } = useSabitTanimlar();
 
   const ucretTipiAdi =
-    ucretTipleri.find(
-      (o) => String(o.value) === String(personel?.UcretTipi),
-    )?.label ?? "";
+    ucretTipleri.find((o) => String(o.value) === String(personel?.UcretTipi))
+      ?.label ?? "";
 
   const odemeSekliAdi =
-    odemeSekilleri.find((u) => String(u.value) === String(personel?.OdemeSekli))?.label ??
-    "";
+    odemeSekilleri.find((u) => String(u.value) === String(personel?.OdemeSekli))
+      ?.label ?? "";
 
   useEffect(() => {
     if (!personel) return;
@@ -51,7 +50,7 @@ export default function BordroBilgileriScreen() {
       GunlukUcret: String(personel.GunlukUcret ?? 0),
       SaatlikUcret: String(personel.SaatlikUcret ?? 0),
     });
-  }, [personel,ucretTipiAdi,odemeSekliAdi, reset]);
+  }, [personel, ucretTipiAdi, odemeSekliAdi, reset]);
 
   if (isLoading) {
     return (
@@ -73,18 +72,21 @@ export default function BordroBilgileriScreen() {
           name="OdemeSekli"
           label="Ödeme Şekli"
           disabled
+          vertical
         />
         <FormInput
           control={control}
           name="UcretTipi"
           label="Ücret Tipi"
           disabled
+          vertical
         />
         <FormInput
           control={control}
           name="AsgeriUcretli"
           label="Asgari Ücretli"
           disabled
+          vertical
         />
         <FormInput
           control={control}
@@ -92,6 +94,7 @@ export default function BordroBilgileriScreen() {
           label="Ücret"
           format="money"
           disabled
+          vertical
         />
         <FormInput
           control={control}
@@ -99,6 +102,7 @@ export default function BordroBilgileriScreen() {
           label="Günlük Ücret"
           format="money"
           disabled
+          vertical
         />
         <FormInput
           control={control}
@@ -106,6 +110,7 @@ export default function BordroBilgileriScreen() {
           label="Saatlik Ücret"
           format="money"
           disabled
+          vertical
         />
       </ScrollView>
     </View>

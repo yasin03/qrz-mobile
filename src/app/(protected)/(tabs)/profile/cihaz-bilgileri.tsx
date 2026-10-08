@@ -22,9 +22,27 @@ export default function CihazBilgileriScreen() {
         className="flex-1 px-4"
         contentContainerClassName="py-4 gap-1"
       >
-        <FormInput control={control} name="Cihaz" label="Cihaz" disabled />
-        <FormInput control={control} name="Marka" label="Marka" disabled />
-        <FormInput control={control} name="Sistem" label="Sistem" disabled />
+        <FormInput
+          control={control}
+          name="Cihaz"
+          label="Cihaz"
+          disabled
+          vertical
+        />
+        <FormInput
+          control={control}
+          name="Marka"
+          label="Marka"
+          disabled
+          vertical
+        />
+        <FormInput
+          control={control}
+          name="Sistem"
+          label="Sistem"
+          disabled
+          vertical
+        />
       </ScrollView>
     </View>
   );

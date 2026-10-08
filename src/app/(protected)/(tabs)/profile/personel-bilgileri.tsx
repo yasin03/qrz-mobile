@@ -86,45 +86,64 @@ export default function PersonelBilgileriScreen() {
           label="TC Kimlik No"
           format="tcno"
           disabled
+          vertical
         />
-        <FormInput control={control} name="Ad" label="Adı" disabled />
-        <FormInput control={control} name="Soyad" label="Soyadı" disabled />
+        <FormInput control={control} name="Ad" label="Adı" disabled vertical />
+        <FormInput
+          control={control}
+          name="Soyad"
+          label="Soyadı"
+          disabled
+          vertical
+        />
         <FormInput
           control={control}
           name="IlkSoyad"
           label="İlk Soyadı"
           disabled
+          vertical
         />
         <FormInput
           control={control}
           name="DogumTarihi"
           label="Doğum Tarihi"
           disabled
+          vertical
         />
         <FormInput
           control={control}
           name="Cinsiyet"
           label="Cinsiyet"
           disabled
+          vertical
         />
-        <FormInput control={control} name="Uyruk" label="Uyruk" disabled />
+        <FormInput
+          control={control}
+          name="Uyruk"
+          label="Uyruk"
+          disabled
+          vertical
+        />
         <FormInput
           control={control}
           name="OgrenimDurumu"
           label="Öğrenim Durumu"
           disabled
+          vertical
         />
         <FormInput
           control={control}
           name="MezuniyetYili"
           label="Mezuniyet Yılı"
           disabled
+          vertical
         />
         <FormInput
           control={control}
           name="MezuniyetBolumu"
           label="Mezuniyet Bölümü"
           disabled
+          vertical
         />
       </ScrollView>
     </View>

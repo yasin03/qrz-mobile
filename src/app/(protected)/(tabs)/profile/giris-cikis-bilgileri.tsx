@@ -37,8 +37,9 @@ export default function GirisCikisBilgileriScreen() {
       ?.label ?? "";
 
   const calismaDurumuAdi =
-    calismaDurumlari.find((o) => String(o.value) === String(personel?.CalismaDurumu))
-      ?.label ?? "";
+    calismaDurumlari.find(
+      (o) => String(o.value) === String(personel?.CalismaDurumu),
+    )?.label ?? "";
 
   useEffect(() => {
     if (!personel) return;
@@ -74,36 +75,42 @@ export default function GirisCikisBilgileriScreen() {
           name="SgkDurumu"
           label="SGK Durumu"
           disabled
+          vertical
         />
         <FormInput
           control={control}
           name="IseIlkGirisTarihi"
           label="İşe İlk Giriş Tarihi"
           disabled
+          vertical
         />
         <FormInput
           control={control}
           name="IseSonGirisTarihi"
           label="İşe Son Giriş Tarihi"
           disabled
+          vertical
         />
         <FormInput
           control={control}
           name="CalismaDurumu"
           label="Çalışma Durumu"
           disabled
+          vertical
         />
         <FormInput
           control={control}
           name="AzCalismaDurumu"
           label="Az Çalışma Durumu"
           disabled
+          vertical
         />
         <FormInput
           control={control}
           name="AzCalismaDurumuGunSayisi"
           label="Az Çalışma Gün Sayısı"
           disabled
+          vertical
         />
       </ScrollView>
     </View>
