@@ -57,7 +57,7 @@ const Index = () => {
     formatDate(startDate),
     formatDate(endDate),
   );
-
+  
   const columns: DataTableColumn<PDKSSelectResponseType>[] = [
     {
       key: "Tarih",

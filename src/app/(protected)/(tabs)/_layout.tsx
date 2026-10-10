@@ -7,7 +7,6 @@ import { Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const HIDDEN_SCREENS = [
-  "lokasyonlar",
   "izinler",
   "avanslar",
   "puantaj",
@@ -16,7 +15,7 @@ const HIDDEN_SCREENS = [
   "eklentiler",
   "kesintiler",
   "bildirimler",
-  "location",
+  "lokasyon",
 ];
 
 // tabBarStyle.paddingTop ile aynı; çizgi tab bar'ın üst kenarına otursun diye

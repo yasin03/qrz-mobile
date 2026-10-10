@@ -31,7 +31,7 @@ const Index = () => {
         <Text className="text-lg font-medium text-qrz-navy">Lokasyonlar</Text>
         <Button
           variant="secondary"
-          onPress={() => router.push("/location/save")}
+          onPress={() => router.push("/lokasyon/save")}
         >
           <MapPinPlus size={20} />
         </Button>

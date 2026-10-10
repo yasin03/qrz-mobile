@@ -22,3 +22,5 @@ export type PDKSInsertInput = {
   IDSubePersonel: string | number;
   JsonData: string;
 };
+
+export type PdksYon = "Giriş" | "Çıkış";

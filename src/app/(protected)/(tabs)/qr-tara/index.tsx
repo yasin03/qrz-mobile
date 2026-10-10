@@ -1,19 +1,23 @@
-import { Button } from "@/components/ui/button";
-import { Text } from "@/components/ui/text";
 import { usePermissions } from "@/hooks/use-permissions";
 import { useRole } from "@/hooks/use-role";
 import { ROLE_GROUPS } from "@/lib/user-types";
 import { useRouter, useIsFocused } from "expo-router";
-import { CameraView, BarcodeScanningResult } from "expo-camera";
+import { BarcodeScanningResult } from "expo-camera";
 import * as Location from "expo-location";
-import { CheckCircle2, LocationEdit, XCircle } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
-import { View, Alert, SafeAreaView, ActivityIndicator } from "react-native";
-import { getDeviceId } from "@/lib/device";
+import { View, Alert } from "react-native";
 import { usePdksMutation } from "@/hooks/use-pdks";
 import { ApiClientError } from "@/lib/axios";
-
-const SCAN_FRAME_SIZE = 260;
+import { PdksYon } from "@/types/pdks";
+import { IzinYok } from "@/components/qr-tara/izin-yok";
+import { QrScanStatus } from "@/components/qr-tara/qr-scan-status";
+import { QrScannerView } from "@/components/qr-tara/qr-scanner-view";
+import { YonSecilmedi } from "@/components/qr-tara/yon-secilmedi";
+import { YonSecimDialog } from "@/components/qr-tara/yon-secim-dialog";
+import {
+  getPositionWithTimeout,
+  parseQrPayload,
+} from "@/components/qr-tara/utils";
 
 const QRTara = () => {
   const router = useRouter();
@@ -22,13 +26,24 @@ const QRTara = () => {
   const pdksMutation = usePdksMutation();
   const [isProcessing, setIsProcessing] = useState(false);
   const [scanSuccess, setScanSuccess] = useState(false);
+  const [yon, setYon] = useState<PdksYon | null>(null);
+  const [yonDialogVisible, setYonDialogVisible] = useState(false);
   const scanLockRef = useRef(false);
-  const [idDevice, setIdDevice] = useState<string | null>(null);
   const isFocused = useIsFocused();
   const isFocusedRef = useRef(isFocused);
 
   useEffect(() => {
     isFocusedRef.current = isFocused;
+
+    // Sayfaya her gelişte tarama durumu ve yön seçimi sıfırlanır, dialog açılır
+    if (isFocused) {
+      setScanSuccess(false);
+      scanLockRef.current = false;
+      setYon(null);
+      setYonDialogVisible(true);
+    } else {
+      setYonDialogVisible(false);
+    }
   }, [isFocused]);
 
   function alertIfFocused(...args: Parameters<typeof Alert.alert>) {
@@ -38,58 +53,21 @@ const QRTara = () => {
   }
 
   useEffect(() => {
-    (async () => {
-      const id = await getDeviceId();
-      setIdDevice(id);
-      await ensurePermissions();
-    })();
+    ensurePermissions();
   }, []);
 
-  const handleNewPagePress = () => router.push("/location");
+  const handleYonSelect = (selected: PdksYon) => {
+    setYon(selected);
+    setYonDialogVisible(false);
+  };
 
-  function parseQrPayload(qrText: string) {
-    const [idBolumLokasyon, idBolum, enlem, boylam] = qrText.split("|");
-    return {
-      idBolumLokasyon: Number(idBolumLokasyon),
-      idBolum: Number(idBolum),
-      enlem: Number(enlem),
-      boylam: Number(boylam),
-    };
-  }
-
-  function getPositionWithTimeout(
-    options: Location.LocationOptions,
-    timeoutMs: number,
-  ): Promise<Location.LocationObject> {
-    return new Promise((resolve, reject) => {
-      const timeout = setTimeout(async () => {
-        const lastKnownPosition = await Location.getLastKnownPositionAsync({
-          maxAge: 60_000,
-          requiredAccuracy: 100,
-        });
-
-        if (lastKnownPosition) {
-          resolve(lastKnownPosition);
-        } else {
-          reject(new Error("LOCATION_TIMEOUT"));
-        }
-      }, timeoutMs);
-
-      Location.getCurrentPositionAsync(options).then(
-        (position) => {
-          clearTimeout(timeout);
-          resolve(position);
-        },
-        (error) => {
-          clearTimeout(timeout);
-          reject(error);
-        },
-      );
-    });
-  }
+  const handleLocationPress = () => {
+    setYonDialogVisible(false);
+    router.push("/lokasyon");
+  };
 
   const handleBarcodeScanned = async (result: BarcodeScanningResult) => {
-    if (scanLockRef.current || isProcessing) return;
+    if (!yon || scanLockRef.current || isProcessing) return;
     scanLockRef.current = true;
     setIsProcessing(true); // kamera burada kapanacak (aşağıdaki render'a bak)
 
@@ -122,19 +100,44 @@ const QRTara = () => {
         scanLockRef.current = false;
         return;
       }
-
-      await pdksMutation.mutateAsync({
+      const payload = {
         idBolum,
         idBolumLokasyon,
         position,
-      });
+        yon,
+      };
+
+      const { test, sonuc } = await pdksMutation.mutateAsync(payload);
+
+      if (test !== 1) {
+        // Kayıt reddedildi (ör. bugün zaten giriş/çıkış var) - kamera açılmadan yön seçimine dön
+        setYon(null);
+        alertIfFocused(
+          "Uyarı",
+          sonuc || "İşlem gerçekleştirilemedi.",
+          [
+            {
+              text: "Tamam",
+              onPress: () => {
+                scanLockRef.current = false;
+                setYonDialogVisible(true);
+              },
+            },
+          ],
+          { cancelable: false },
+        );
+        return;
+      }
+
       setScanSuccess(true);
 
       const { latitude, longitude, accuracy } = position.coords;
 
       alertIfFocused(
         "PDKS Kaydı Oluşturuldu",
-        `QR Verisi:\n` +
+        `${sonuc}\n\n` +
+          `Yön: ${yon}\n\n` +
+          `QR Verisi:\n` +
           `Bölüm Lokasyon: ${idBolumLokasyon}\n` +
           `Bölüm: ${idBolum}\n` +
           `Enlem: ${enlem}\n` +
@@ -154,12 +157,9 @@ const QRTara = () => {
             },
           },
         ],
+        // Başarı ekranı (kamera kapalı) Tamam'a basılana kadar kalır
+        { cancelable: false },
       );
-
-      setTimeout(() => {
-        setScanSuccess(false);
-        scanLockRef.current = false;
-      }, 1200);
     } catch (error) {
       if ((error as Error).message === "LOCATION_TIMEOUT") {
         alertIfFocused(
@@ -183,79 +183,28 @@ const QRTara = () => {
       {permissionsGranted ? (
         <View className="flex-1">
           {isProcessing || scanSuccess ? (
-            // Kamera tamamen unmount - loading/success ekranı
-            <View className="flex-1 items-center justify-center gap-4">
-              {scanSuccess ? (
-                <>
-                  <CheckCircle2 size={64} color="#22c55e" />
-                  <Text className="text-white text-lg font-medium">
-                    PDKS kaydı oluşturuldu
-                  </Text>
-                </>
-              ) : (
-                <>
-                  <ActivityIndicator size="large" color="#ffffff" />
-                  <Text className="text-white text-base font-medium">
-                    Konum doğrulanıyor...
-                  </Text>
-                </>
-              )}
-            </View>
+            <QrScanStatus success={scanSuccess} />
+          ) : !yon ? (
+            <YonSecilmedi onPress={() => setYonDialogVisible(true)} />
           ) : (
-            <>
-              <CameraView
-                style={{ flex: 1 }}
-                facing="back"
-                barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
-                onBarcodeScanned={handleBarcodeScanned}
-              />
-
-              {hasRole(ROLE_GROUPS.ADMIN_VE_YONETICI) && (
-                <View className="absolute top-14 right-5 left-0">
-                  <View className="items-end px-4 pt-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="bg-black/40 rounded-full"
-                      onPress={handleNewPagePress}
-                    >
-                      <LocationEdit size={30} color="white" />
-                    </Button>
-                  </View>
-                </View>
-              )}
-
-              <View className="absolute inset-0 items-center justify-center">
-                <View
-                  style={{ width: SCAN_FRAME_SIZE, height: SCAN_FRAME_SIZE }}
-                  className="relative"
-                >
-                  <View className="absolute top-0 left-0 w-10 h-10 border-t-4 border-l-4 border-white rounded-tl-2xl" />
-                  <View className="absolute top-0 right-0 w-10 h-10 border-t-4 border-r-4 border-white rounded-tr-2xl" />
-                  <View className="absolute bottom-0 left-0 w-10 h-10 border-b-4 border-l-4 border-white rounded-bl-2xl" />
-                  <View className="absolute bottom-0 right-0 w-10 h-10 border-b-4 border-r-4 border-white rounded-br-2xl" />
-                </View>
-              </View>
-
-              <View className="absolute bottom-36 left-0 right-0 items-center">
-                <Text className="text-white text-base font-medium">
-                  QR kodu çerçeve içine hizalayın
-                </Text>
-              </View>
-            </>
+            <QrScannerView
+              yon={yon}
+              onBarcodeScanned={handleBarcodeScanned}
+              onYonPress={() => setYonDialogVisible(true)}
+            />
           )}
         </View>
       ) : (
-        <View className="flex-1 items-center justify-center gap-3 px-6">
-          <XCircle size={48} color="#ef4444" />
-          <Text className="text-white text-lg font-medium text-center">
-            Kamera ve konum izni verilmedi
-          </Text>
-          <Text className="text-gray-400 text-sm text-center">
-            QR okutabilmek için izinleri Ayarlar'dan açmanız gerekiyor.
-          </Text>
-        </View>
+        <IzinYok />
       )}
+
+      <YonSecimDialog
+        visible={yonDialogVisible}
+        onSelect={handleYonSelect}
+        onClose={() => setYonDialogVisible(false)}
+        showLocationButton={hasRole(ROLE_GROUPS.ADMIN_VE_YONETICI)}
+        onLocationPress={handleLocationPress}
+      />
     </View>
   );
 };

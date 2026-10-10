@@ -37,7 +37,7 @@ export function LokasyonListItem({ item }: { item: Lokasyon }) {
 
   const handleEdit = () => {
     router.push({
-      pathname: "/location/save",
+      pathname: "/lokasyon/save",
       params: { idBolumLokasyon: item.IDBolumLokasyon },
     });
   };
