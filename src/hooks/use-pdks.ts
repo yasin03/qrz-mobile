@@ -1,8 +1,9 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Location from "expo-location";
 import { getDeviceId } from "@/lib/device";
 import { api } from "@/lib/axios";
 import {
+  PDKSDetaySelectResponseType,
   PDKSSelectRequestType,
   PDKSSelectResponseType,
   PdksYon,
@@ -28,9 +29,15 @@ type PdksMutationParams = {
 };
 
 const API_URL = "/api/pdks";
+const PDKS_QUERY_KEY = "pdks";
 
 export function usePdksMutation() {
+  const queryClient = useQueryClient();
   return useMutation({
+    // Yeni giriş/çıkış sonrası ana sayfa ve PDKS listesi güncel veriyi çeksin
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [PDKS_QUERY_KEY] });
+    },
     mutationFn: async ({
       idBolum,
       idBolumLokasyon,
@@ -79,29 +86,32 @@ export async function selectPdks(
 ): Promise<PDKSSelectResponseType[]> {
   const response = await api.post<PDKSSelectResponseType[]>(API_URL, {
     type: "SELECT_PDKS_KENDI",
-    IDSubePersonel: params.IDSubePersonel,
-    Tarih1: params.Tarih1,
-    Tarih2: params.Tarih2,
+    Yil: params.Yil,
+    Ay: params.Ay,
   });
 
   return response.data;
 }
 
-export function usePdksSelect(
-  IDSubePersonel: number,
-  Tarih1: string,
-  Tarih2: string,
-) {
+// Personelin kendi aylık kayıtları
+export function usePdksSelect(params: PDKSSelectRequestType, enabled = true) {
   return useQuery({
-    queryKey: ["pdks", IDSubePersonel, Tarih1, Tarih2],
+    queryKey: [PDKS_QUERY_KEY, params.Yil, params.Ay],
+    queryFn: () => selectPdks(params),
+    enabled: enabled && !!params.Yil && !!params.Ay,
+  });
+}
 
-    queryFn: () =>
-      selectPdks({
-        IDSubePersonel,
-        Tarih1,
-        Tarih2,
-      }),
-
-    enabled: !!IDSubePersonel && !!Tarih1 && !!Tarih2,
+export function usePdksDetay(idSubePersonelSaat: string | number | null) {
+  return useQuery({
+    queryKey: [PDKS_QUERY_KEY, "detay", idSubePersonelSaat],
+    queryFn: async () => {
+      const response = await api.post<PDKSDetaySelectResponseType[]>(API_URL, {
+        type: "SELECT_PDKS_DETAY",
+        IDSubePersonelSaat: idSubePersonelSaat,
+      });
+      return response.data;
+    },
+    enabled: idSubePersonelSaat != null,
   });
 }

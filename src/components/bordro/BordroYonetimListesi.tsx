@@ -4,8 +4,13 @@ import { useRouter, type Href } from "expo-router";
 import { ChevronRight, Info, Search } from "lucide-react-native";
 
 import { Input } from "@/components/ui/input";
-import { PuantajDonemBar } from "@/components/puantaj/PuantajDonemBar";
-import type { Donem } from "@/components/puantaj/PuantajDonemSecici";
+import {
+  buAy,
+  CustomDateNavigator,
+  type Donem,
+  donemToValue,
+  valueToDonem,
+} from "@/components/custom-date-navigator";
 import { useBordroList } from "@/hooks/use-bordro";
 import { formatMoney } from "@/lib/format-helpers";
 import { cn } from "@/lib/utils";
@@ -30,10 +35,7 @@ function basHarfler(b: BordroResponseType) {
 export function BordroYonetimListesi() {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
-  const [donem, setDonem] = useState<Donem>(() => {
-    const now = new Date();
-    return { yil: now.getFullYear(), ay: now.getMonth() + 1 };
-  });
+  const [donem, setDonem] = useState<Donem>(buAy);
   const [arama, setArama] = useState("");
 
   const { data = [], isLoading, isRefetching, refetch } = useBordroList({
@@ -88,7 +90,11 @@ export function BordroYonetimListesi() {
       ItemSeparatorComponent={() => <View className="h-2" />}
       ListHeaderComponent={
         <View className="gap-3 pb-3">
-          <PuantajDonemBar donem={donem} onChange={setDonem} />
+          <CustomDateNavigator
+            mode="month"
+            value={donemToValue(donem)}
+            onChange={(value) => setDonem(valueToDonem(value))}
+          />
 
           <View className="rounded-2xl bg-qrz-light p-4">
             <Text className="text-xs font-medium text-slate-500">Toplam ödenecek</Text>

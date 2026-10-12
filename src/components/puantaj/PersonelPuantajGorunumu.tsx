@@ -9,8 +9,13 @@ import {
 import { Info } from "lucide-react-native";
 
 import { usePuantajById } from "@/hooks/use-puantaj";
-import { PuantajDonemBar } from "./PuantajDonemBar";
-import type { Donem } from "./PuantajDonemSecici";
+import {
+  buAy,
+  CustomDateNavigator,
+  type Donem,
+  donemToValue,
+  valueToDonem,
+} from "@/components/custom-date-navigator";
 import { PuantajOzet } from "./PuantajOzet";
 import { PuantajTakvimi } from "./PuantajTakvimi";
 import { PuantajKodAciklamalari } from "./PuantajKodAciklamalari";
@@ -21,11 +26,6 @@ type Props = {
   /** Takvimin üstünde personel adı / unvanı gösterilsin mi (yönetici görünümü) */
   personelBilgisiGoster?: boolean;
 };
-
-function buAy(): Donem {
-  const now = new Date();
-  return { yil: now.getFullYear(), ay: now.getMonth() + 1 };
-}
 
 // Tek personelin aylık puantajı: dönem seçici + özet + takvim + kod açıklamaları.
 // Personelin kendi ekranı ve yöneticinin personel detayı ortak kullanır.
@@ -67,10 +67,11 @@ export function PersonelPuantajGorunumu({
         </View>
       ) : null}
 
-      <PuantajDonemBar
-        donem={donem}
-        onChange={setDonem}
-        altBaslik={kayit?.BolumAdi}
+      <CustomDateNavigator
+        mode="month"
+        value={donemToValue(donem)}
+        onChange={(value) => setDonem(valueToDonem(value))}
+        subtitle={kayit?.BolumAdi}
       />
 
       {isLoading ? (

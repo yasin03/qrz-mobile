@@ -10,8 +10,13 @@ import {
 import { Info, SlidersHorizontal, User } from "lucide-react-native";
 
 import { BilgiBolumu } from "@/components/bilgi-bolumu";
-import { PuantajDonemBar } from "@/components/puantaj/PuantajDonemBar";
-import type { Donem } from "@/components/puantaj/PuantajDonemSecici";
+import {
+  buAy,
+  CustomDateNavigator,
+  type Donem,
+  donemToValue,
+  valueToDonem,
+} from "@/components/custom-date-navigator";
 import { getAyAdi } from "@/components/puantaj/puantaj-helpers";
 import { useBordroById } from "@/hooks/use-bordro";
 import { formatMoney } from "@/lib/format-helpers";
@@ -31,11 +36,6 @@ type Props = {
   idSubePersonel: string | number | null | undefined;
   baslangicDonem?: Donem;
 };
-
-function buAy(): Donem {
-  const now = new Date();
-  return { yil: now.getFullYear(), ay: now.getMonth() + 1 };
-}
 
 const toAlanlar = (fields: Field[], values: BordroValues, showZeros: boolean) =>
   fields
@@ -101,7 +101,11 @@ export function BordroDetay({ idSubePersonel, baslangicDonem }: Props) {
           </Pressable>
         </View>
 
-        <PuantajDonemBar donem={donem} onChange={setDonem} />
+        <CustomDateNavigator
+          mode="month"
+          value={donemToValue(donem)}
+          onChange={(value) => setDonem(valueToDonem(value))}
+        />
 
         {isLoading ? (
           <View className="h-48 items-center justify-center">

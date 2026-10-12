@@ -88,7 +88,7 @@ const QRTara = () => {
       }
 
       const position = await getPositionWithTimeout(
-        { accuracy: Location.Accuracy.High },
+        { accuracy: Location.Accuracy.Highest },
         12000,
       );
 

@@ -158,7 +158,7 @@ const Index = () => {
           />
           <MenuRow
             icon={<Clock size={16} color="#64748b" />}
-            label="Giriş/Çıkış Bilgileri"
+            label="Çalışma Bilgileri"
             onPress={() => router.push("/profile/giris-cikis-bilgileri")}
           />
           <MenuRow

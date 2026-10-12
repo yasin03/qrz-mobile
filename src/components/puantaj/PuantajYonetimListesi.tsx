@@ -13,8 +13,13 @@ import { Input } from "@/components/ui/input";
 import { usePuantajList } from "@/hooks/use-puantaj";
 import { useAuthStore } from "@/stores/auth-store";
 import type { PuantajSelectResponseType } from "@/types/puantaj";
-import { PuantajDonemBar } from "./PuantajDonemBar";
-import type { Donem } from "./PuantajDonemSecici";
+import {
+  buAy,
+  CustomDateNavigator,
+  type Donem,
+  donemToValue,
+  valueToDonem,
+} from "@/components/custom-date-navigator";
 import { PersonelPuantajKarti } from "./PersonelPuantajKarti";
 
 const SERIT_LEJANT = [
@@ -30,10 +35,7 @@ const SERIT_LEJANT = [
 export function PuantajYonetimListesi() {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
-  const [donem, setDonem] = useState<Donem>(() => {
-    const now = new Date();
-    return { yil: now.getFullYear(), ay: now.getMonth() + 1 };
-  });
+  const [donem, setDonem] = useState<Donem>(buAy);
   const [arama, setArama] = useState("");
 
   const { data = [], isLoading, isRefetching, refetch } = usePuantajList({
@@ -77,7 +79,11 @@ export function PuantajYonetimListesi() {
 
   const header = (
     <View className="gap-3 pb-3">
-      <PuantajDonemBar donem={donem} onChange={setDonem} />
+      <CustomDateNavigator
+        mode="month"
+        value={donemToValue(donem)}
+        onChange={(value) => setDonem(valueToDonem(value))}
+      />
 
       <Input
         value={arama}
