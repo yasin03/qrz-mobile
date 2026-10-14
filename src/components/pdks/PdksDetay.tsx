@@ -1,4 +1,4 @@
-import { ActivityIndicator, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { LogIn, LogOut, MapPin } from "lucide-react-native";
 
 import { usePdksDetay } from "@/hooks/use-pdks";
@@ -25,6 +25,7 @@ export function PdksDetay({ kayit }: Props) {
     data: hareketler = [],
     isLoading,
     isError,
+    refetch,
   } = usePdksDetay(kayit.IDSubePersonelSaat);
 
   return (
@@ -42,9 +43,16 @@ export function PdksDetay({ kayit }: Props) {
         {isLoading ? (
           <ActivityIndicator size="small" color="#64748b" />
         ) : isError ? (
-          <Text className="text-sm text-red-500">
-            Hareketler yüklenemedi.
-          </Text>
+          <View className="flex-row items-center justify-between">
+            <Text className="text-sm text-red-500">Hareketler yüklenemedi.</Text>
+            <Pressable
+              onPress={() => refetch()}
+              hitSlop={8}
+              className="rounded-lg border border-gray-200 px-3 py-1 active:bg-gray-50"
+            >
+              <Text className="text-xs font-medium text-gray-600">Tekrar dene</Text>
+            </Pressable>
+          </View>
         ) : hareketler.length === 0 ? (
           <Text className="text-sm text-gray-500">Hareket kaydı yok.</Text>
         ) : (

@@ -10,6 +10,8 @@ import { useAuthStore } from "@/stores/auth-store";
 export function HomeHeader() {
   const user = useAuthStore((state) => state.user);
   const router = useRouter();
+  // TODO: bildirim kaynağı (API) hazır olunca okunmamış sayısı buradan gelecek
+  const okunmamisBildirim = 0;
 
   return (
     <SafeAreaView edges={["top"]} className=" px-6">
@@ -35,9 +37,11 @@ export function HomeHeader() {
           className="relative"
         >
           <Bell size={24} color="white" />
-          <Text className="absolute -top-1 -right-1 text-xs text-white font-bold bg-red-500 rounded-full w-4 h-4 text-center">
-            3
-          </Text>
+          {okunmamisBildirim > 0 && (
+            <Text className="absolute -top-1 -right-1 text-xs text-white font-bold bg-red-500 rounded-full w-4 h-4 text-center">
+              {okunmamisBildirim}
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
 

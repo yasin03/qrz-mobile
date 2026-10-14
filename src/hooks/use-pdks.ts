@@ -29,7 +29,7 @@ type PdksMutationParams = {
 };
 
 const API_URL = "/api/pdks";
-const PDKS_QUERY_KEY = "pdks";
+export const PDKS_QUERY_KEY = "pdks";
 
 export function usePdksMutation() {
   const queryClient = useQueryClient();

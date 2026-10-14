@@ -77,26 +77,23 @@ export function PersonelPdksListesi() {
         onChange={(value) => setDonem(valueToDonem(value))}
       />
 
-      {isError ? (
-        <View className="flex-1 items-center justify-center px-4">
-          <Text className="text-red-500">
-            PDKS yüklenirken bir hata oluştu.
-          </Text>
-        </View>
-      ) : (
-        <View className="flex-1">
-          <CustomDataTable
-            columns={columns}
-            data={kayitlar}
-            keyExtractor={(item) => String(item.IDSubePersonelSaat)}
-            isLoading={isLoading}
-            emptyText="Bu ay için PDKS kaydı bulunamadı"
-            refreshing={isRefetching}
-            onRefresh={refetch}
-            renderDetail={(item) => <PdksDetay kayit={item} />}
-          />
-        </View>
-      )}
+      <View className="flex-1">
+        <CustomDataTable
+          columns={columns}
+          data={kayitlar}
+          keyExtractor={(item) => String(item.IDSubePersonelSaat)}
+          isLoading={isLoading}
+          emptyText={
+            isError
+              ? "PDKS yüklenirken bir hata oluştu."
+              : "Bu ay için PDKS kaydı bulunamadı"
+          }
+          onRetry={refetch}
+          refreshing={isRefetching}
+          onRefresh={refetch}
+          renderDetail={(item) => <PdksDetay kayit={item} />}
+        />
+      </View>
     </View>
   );
 }

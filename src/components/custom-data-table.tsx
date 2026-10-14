@@ -43,6 +43,10 @@ type DataTableProps<T> = {
 
   /** Yenileme (pull to refresh) sırasında true olmalı */
   refreshing?: boolean;
+
+  /** Verilirse boş/hata durumunda mesajın altında "Tekrar dene" butonu gösterilir */
+  onRetry?: () => void;
+  retryLabel?: string;
 };
 
 export function CustomDataTable<T>({
@@ -57,6 +61,8 @@ export function CustomDataTable<T>({
   isLoading = false,
   onRefresh,
   refreshing = false,
+  onRetry,
+  retryLabel = "Tekrar dene",
 }: DataTableProps<T>) {
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(
     new Set()
@@ -192,10 +198,20 @@ export function CustomDataTable<T>({
             : undefined
         }
         ListEmptyComponent={
-          <View className="items-center justify-center py-10">
-            <Text className="text-sm text-gray-400">
+          <View className="items-center justify-center gap-3 py-10">
+            <Text className="text-center text-sm text-gray-400">
               {isLoading ? "Yükleniyor..." : emptyText}
             </Text>
+            {!isLoading && onRetry ? (
+              <Pressable
+                onPress={onRetry}
+                className="rounded-xl border border-gray-200 px-4 py-2 active:bg-gray-50"
+              >
+                <Text className="text-sm font-medium text-gray-600">
+                  {retryLabel}
+                </Text>
+              </Pressable>
+            ) : null}
           </View>
         }
       />

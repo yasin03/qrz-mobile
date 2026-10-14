@@ -1,7 +1,9 @@
 import { RefreshControl, ScrollView, View } from "react-native";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { useAuthStore } from "@/stores/auth-store";
 import { useRole } from "@/hooks/use-role";
+import { PDKS_QUERY_KEY } from "@/hooks/use-pdks";
 import { usePersonelDashboard, useYoneticiDashboard } from "@/hooks/use-dashboard";
 import { HomeHeader } from "@/components/home/HomeHeader";
 import { BugunPdksKarti } from "@/components/home/BugunPdksKarti";
@@ -25,6 +27,13 @@ export default function PersonelHomeScreen() {
   );
   const ozet = isPersonel ? personelOzet : yoneticiOzet;
 
+  const queryClient = useQueryClient();
+  // Özetle birlikte bugünkü PDKS kartı (ay listesi + günün hareketleri) da yenilensin
+  const handleRefresh = () => {
+    ozet.refetch();
+    queryClient.invalidateQueries({ queryKey: [PDKS_QUERY_KEY] });
+  };
+
   return (
     <View className="flex-1 bg-qrz-navy">
       <HomeHeader />
@@ -35,7 +44,7 @@ export default function PersonelHomeScreen() {
           contentContainerClassName="pb-8"
           showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl refreshing={ozet.isRefetching} onRefresh={ozet.refetch} />
+            <RefreshControl refreshing={ozet.isRefetching} onRefresh={handleRefresh} />
           }
         >
           <BugunPdksKarti />

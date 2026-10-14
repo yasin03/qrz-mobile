@@ -1,18 +1,30 @@
 import { Text, View } from "react-native";
 import { CalendarCheck, CalendarX, Clock, Flag } from "lucide-react-native";
 
-import { usePdksSelect } from "@/hooks/use-pdks";
-import { bugunKey, toGunKey } from "@/components/pdks/pdks-helpers";
+import {
+  formatSure,
+  saatAyrilmaHali,
+  saatGosterim,
+} from "@/components/pdks/pdks-helpers";
+import { type BugunDurum, useBugunPdks } from "./use-bugun-pdks";
 
-// Header'a binen beyaz kart: bugünkü giriş / çıkış / mesai / durum
+const DURUM_GORUNUM: Record<BugunDurum, { label: string; color: string }> = {
+  gelmedi: { label: "Gelmedi", color: "#F59E0B" },
+  iceride: { label: "İçeride", color: "#22C55E" },
+  cikti: { label: "Çıktı", color: "#64748B" },
+};
+
+// Header'a binen beyaz kart: bugünkü giriş / çıkış / mesai (canlı) / durum
 export function BugunPdksKarti() {
-  // Aylık kayıtlar gelir, bugünün satırı seçilir
-  const bugun = bugunKey();
-  const { data: pdksData = [] } = usePdksSelect({
-    Yil: bugun.slice(0, 4),
-    Ay: bugun.slice(5, 7),
-  });
-  const pdks = pdksData.find((k) => toGunKey(k.Tarih) === bugun);
+  const { pdks, durum, sonHareketZamani, calismaMs } = useBugunPdks();
+  const durumGorunum = DURUM_GORUNUM[durum];
+
+  const durumHint =
+    durum === "iceride" && sonHareketZamani
+      ? `${saatAyrilmaHali(sonHareketZamani)} beri`
+      : durum === "cikti" && sonHareketZamani
+        ? `${saatGosterim(sonHareketZamani)} çıkış`
+        : "Henüz giriş yok";
 
   return (
     <View className="mx-4 rounded-2xl bg-white px-4 py-5 shadow-sm shadow-black/10">
@@ -34,16 +46,16 @@ export function BugunPdksKarti() {
         <StatItem
           icon={<Clock size={22} color="#052346" />}
           label="Mesai Süresi"
-          value={pdks?.MesaiSure || pdks?.ToplamSure || "--:--"}
-          valueColor="#94A3B8"
-          hint=""
+          value={durum === "gelmedi" ? "--:--" : formatSure(calismaMs)}
+          valueColor={durum === "iceride" ? "#22C55E" : "#94A3B8"}
+          hint={durum === "iceride" ? "Sayıyor" : durum === "cikti" ? "Bugün toplam" : ""}
         />
         <StatItem
-          icon={<Flag size={22} color="#052346" />}
+          icon={<Flag size={22} color={durumGorunum.color} />}
           label="Durum"
-          value="Aktif"
-          valueColor="#052346"
-          hint="Çalışıyorsun"
+          value={durumGorunum.label}
+          valueColor={durumGorunum.color}
+          hint={durumHint}
         />
       </View>
     </View>
