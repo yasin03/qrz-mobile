@@ -9,9 +9,15 @@ import { useLokasyonlar } from "@/hooks/use-lokasyonlar";
 import { SelectPicker } from "@/components/ui/select-picker";
 import { LokasyonListItem } from "@/components/lokasyon/lokasyon-list-item";
 
+// Bölüm filtresinde en üstte duran "Tümü" seçeneği — boş değer, API'ye
+// IDBolum gönderilmiyor ve şubenin tüm lokasyonları geliyor.
+const TUMU_OPTION = { value: "", label: "Tümü" };
+
 const Index = () => {
   const router = useRouter();
-  const [selectedBolumId, setSelectedBolumId] = useState<string>();
+  const [selectedBolumId, setSelectedBolumId] = useState<string>(
+    TUMU_OPTION.value,
+  );
 
   const {
     data: bolumler,
@@ -23,7 +29,7 @@ const Index = () => {
     data: lokasyonlar,
     isLoading: isLokasyonlarLoading,
     isError: isLokasyonlarError,
-  } = useLokasyonlar(selectedBolumId ? Number(selectedBolumId) : undefined);
+  } = useLokasyonlar(selectedBolumId);
 
   return (
     <SafeAreaView className="flex-1">
@@ -41,12 +47,13 @@ const Index = () => {
         <SelectPicker
           value={selectedBolumId}
           onChange={setSelectedBolumId}
-          options={
-            bolumler?.map((b) => ({
+          options={[
+            TUMU_OPTION,
+            ...(bolumler?.map((b) => ({
               value: String(b.IDBolum),
               label: b.BolumAdi,
-            })) ?? []
-          }
+            })) ?? []),
+          ]}
           placeholder="Bölüm seçiniz"
           title="Bölüm Seçiniz"
           isLoading={isBolumlerLoading}
@@ -54,13 +61,7 @@ const Index = () => {
         />
       </View>
 
-      {!selectedBolumId ? (
-        <View className="flex-1 items-center justify-center px-4">
-          <Text className="text-muted-foreground">
-            Lokasyonları görmek için bir bölüm seçiniz.
-          </Text>
-        </View>
-      ) : isLokasyonlarLoading ? (
+      {isLokasyonlarLoading ? (
         <View className="flex-1 items-center justify-center">
           <Text>Lokasyonlar yükleniyor...</Text>
         </View>
@@ -79,7 +80,9 @@ const Index = () => {
             <View className="items-center gap-2 py-12">
               <MapPinOff size={32} className="text-muted-foreground" />
               <Text className="text-muted-foreground">
-                Bu bölüme ait lokasyon bulunamadı.
+                {selectedBolumId
+                  ? "Bu bölüme ait lokasyon bulunamadı."
+                  : "Lokasyon bulunamadı."}
               </Text>
             </View>
           }

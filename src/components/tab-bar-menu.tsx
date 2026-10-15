@@ -1,4 +1,6 @@
 import { Text } from "@/components/ui/text";
+import { useRole } from "@/hooks/use-role";
+import { USER_TYPES, type UserType } from "@/lib/user-types";
 import { useRouter, type Href } from "expo-router";
 import {
   CalendarCheck,
@@ -34,16 +36,63 @@ type MenuItem = {
   icon: LucideIcon;
   iconColor: string;
   href: Href;
+  /** Bu menüyü görebilecek kullanıcı tipleri. */
+  roles: readonly UserType[];
 };
 
+const { ADMIN, YONETICI, PERSONEL } = USER_TYPES;
+const TUMU: readonly UserType[] = [ADMIN, YONETICI, PERSONEL];
+
 const MENU_ITEMS: MenuItem[] = [
-  { title: "İzinler", icon: CalendarCheck, iconColor: "#01BBE6", href: "/izinler" },
-  { title: "Avanslar", icon: HandCoins, iconColor: "#F59E0B", href: "/avanslar" },
-  { title: "Özlük", icon: IdCard, iconColor: "#6366F1", href: "/ozluk" },
-  { title: "Eklentiler", icon: PlusCircle, iconColor: "#10B981", href: "/eklentiler" },
-  { title: "Kesintiler", icon: MinusCircle, iconColor: "#EF4444", href: "/kesintiler" },
-  { title: "Bordro", icon: Receipt, iconColor: "#0EA5E9", href: "/bordro" },
-  { title: "Puantaj", icon: CalendarDays, iconColor: "#8B5CF6", href: "/puantaj" },
+  {
+    title: "İzinler",
+    icon: CalendarCheck,
+    iconColor: "#01BBE6",
+    href: "/izinler",
+    roles: TUMU,
+  },
+  {
+    title: "Avanslar",
+    icon: HandCoins,
+    iconColor: "#F59E0B",
+    href: "/avanslar",
+    roles: TUMU,
+  },
+  {
+    title: "Özlük",
+    icon: IdCard,
+    iconColor: "#6366F1",
+    href: "/ozluk",
+    roles: TUMU,
+  },
+  {
+    title: "Eklentiler",
+    icon: PlusCircle,
+    iconColor: "#10B981",
+    href: "/eklentiler",
+    roles: TUMU,
+  },
+  {
+    title: "Kesintiler",
+    icon: MinusCircle,
+    iconColor: "#EF4444",
+    href: "/kesintiler",
+    roles: TUMU,
+  },
+  {
+    title: "Bordro",
+    icon: Receipt,
+    iconColor: "#0EA5E9",
+    href: "/bordro",
+    roles: TUMU,
+  },
+  {
+    title: "Puantaj",
+    icon: CalendarDays,
+    iconColor: "#8B5CF6",
+    href: "/puantaj",
+    roles: TUMU,
+  },
 ];
 
 type Props = {
@@ -52,10 +101,10 @@ type Props = {
   bottomInset: number;
 };
 
-// Tab bar'ın üstünde duran katman: ortadaki yuvarlak buton + açılan menü.
-// Tab bar'ı kapatmaz; menü açıkken de tab bar görünür ve tıklanabilir kalır.
 export function TabBarMenu({ open, onOpenChange, bottomInset }: Props) {
   const router = useRouter();
+  const { hasRole } = useRole();
+  const menuItems = MENU_ITEMS.filter((item) => hasRole(item.roles));
   const tabBarHeight = TAB_BAR_HEIGHT + bottomInset;
 
   // Android geri tuşu menüyü kapatsın
@@ -94,8 +143,12 @@ export function TabBarMenu({ open, onOpenChange, bottomInset }: Props) {
           </Animated.View>
 
           <Animated.View
-            entering={FadeInDown.springify().damping(50).reduceMotion(ReduceMotion.System)}
-            exiting={FadeOutDown.duration(150).reduceMotion(ReduceMotion.System)}
+            entering={FadeInDown.springify()
+              .damping(50)
+              .reduceMotion(ReduceMotion.System)}
+            exiting={FadeOutDown.duration(150).reduceMotion(
+              ReduceMotion.System,
+            )}
             className="mx-4 rounded-3xl bg-card p-3 shadow-xl shadow-black/20"
             style={{ marginBottom: MENU_BUTTON_OVERFLOW + 14 }}
           >
@@ -104,7 +157,7 @@ export function TabBarMenu({ open, onOpenChange, bottomInset }: Props) {
             </Text>
 
             <View className="flex-row flex-wrap">
-              {MENU_ITEMS.map((item) => (
+              {menuItems.map((item) => (
                 <View key={item.title} className="w-1/3 p-1">
                   <TouchableOpacity
                     activeOpacity={0.7}

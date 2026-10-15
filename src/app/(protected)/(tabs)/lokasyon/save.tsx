@@ -4,12 +4,12 @@ import { FormSwitch } from "@/components/form/form-switch";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { useBolumler } from "@/hooks/use-kurumsal";
-import { useCreateLokasyon } from "@/hooks/use-lokasyonlar";
+import { useCreateLokasyon, useUpdateLokasyon } from "@/hooks/use-lokasyonlar";
 import { usePermissions } from "@/hooks/use-permissions";
 import { ApiClientError } from "@/lib/axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as Location from "expo-location";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Alert, View } from "react-native";
@@ -26,12 +26,25 @@ const locationSchema = z.object({
 
 type LocationFormValues = z.infer<typeof locationSchema>;
 
+// Düzenleme modunda liste ekranından gelen parametreler (lokasyon-list-item).
+// Enlem/boylam bilerek yok: düzenlemede de telefonun güncel konumu alınıyor.
+type SaveParams = {
+  idBolumLokasyon?: string;
+  idBolum?: string;
+  lokasyonAdi?: string;
+  aktif?: string;
+};
+
 const Save = () => {
   const router = useRouter();
+  const params = useLocalSearchParams<SaveParams>();
+  const isEditMode = Boolean(params.idBolumLokasyon);
   const { ensurePermissions } = usePermissions();
   const [isFetchingLocation, setIsFetchingLocation] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const createLokasyon = useCreateLokasyon();
+  const updateLokasyon = useUpdateLokasyon();
+  const isSaving = createLokasyon.isPending || updateLokasyon.isPending;
 
   const {
     data: bolumler,
@@ -47,11 +60,11 @@ const Save = () => {
   } = useForm<LocationFormValues>({
     resolver: zodResolver(locationSchema),
     defaultValues: {
-      idBolum: "",
+      idBolum: params.idBolum ?? "",
       latitude: "",
       longitude: "",
-      locationName: "",
-      status: true,
+      locationName: params.lokasyonAdi ?? "",
+      status: params.aktif ? params.aktif === "1" : true,
     },
   });
 
@@ -84,36 +97,50 @@ const Save = () => {
   }, []);
 
   const onSubmit = (data: LocationFormValues) => {
-    createLokasyon.mutate(
-      {
-        IDBolum: Number(data.idBolum),
-        LokasyonAdi: data.locationName,
-        Enlem: Number(data.latitude),
-        Boylam: Number(data.longitude),
-        Aktif: data.status,
+    const input = {
+      IDBolum: Number(data.idBolum),
+      LokasyonAdi: data.locationName,
+      Enlem: Number(data.latitude),
+      Boylam: Number(data.longitude),
+      Aktif: data.status,
+    };
+
+    const callbacks = {
+      onSuccess: () => {
+        Alert.alert(
+          "Başarılı",
+          isEditMode ? "Konum güncellendi." : "Konum kaydedildi.",
+          [{ text: "Tamam", onPress: () => router.back() }],
+        );
       },
-      {
-        onSuccess: () => {
-          Alert.alert("Başarılı", "Konum kaydedildi.", [
-            { text: "Tamam", onPress: () => router.back() },
-          ]);
-        },
-        onError: (error) => {
-          console.error("CREATE LOKASYON ERROR:", error);
-          const message =
-            error instanceof ApiClientError
-              ? error.message
+      onError: (error: Error) => {
+        console.error("SAVE LOKASYON ERROR:", error);
+        const message =
+          error instanceof ApiClientError
+            ? error.message
+            : isEditMode
+              ? "Konum güncellenirken bir hata oluştu."
               : "Konum kaydedilirken bir hata oluştu.";
-          Alert.alert("Hata", message);
-        },
+        Alert.alert("Hata", message);
       },
-    );
+    };
+
+    if (isEditMode) {
+      updateLokasyon.mutate(
+        { ...input, IDBolumLokasyon: params.idBolumLokasyon as string },
+        callbacks,
+      );
+    } else {
+      createLokasyon.mutate(input, callbacks);
+    }
   };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
       <View className="flex-1 gap-4 px-6 pt-4">
-        <Text className="text-lg font-medium text-qrz-navy">Konum Kaydet</Text>
+        <Text className="text-lg font-medium text-qrz-navy">
+          {isEditMode ? "Konum Düzenle" : "Konum Kaydet"}
+        </Text>
 
         {isFetchingLocation ? (
           <Text>Konum alınıyor...</Text>
@@ -160,9 +187,9 @@ const Save = () => {
 
         <Button
           onPress={handleSubmit(onSubmit)}
-          disabled={isFetchingLocation || createLokasyon.isPending}
+          disabled={isFetchingLocation || isSaving}
         >
-          <Text>{createLokasyon.isPending ? "Kaydediliyor..." : "Kaydet"}</Text>
+          <Text>{isSaving ? "Kaydediliyor..." : "Kaydet"}</Text>
         </Button>
       </View>
     </SafeAreaView>

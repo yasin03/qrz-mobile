@@ -3,19 +3,20 @@ import { Lokasyon } from "@/types/lokasyon";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 // SELECT LOKASYON
-export async function selectLokasyonlar(idBolum: number): Promise<Lokasyon[]> {
+// idBolum boşsa ("Tümü") IDBolum hiç gönderilmiyor — route bu durumda
+// "0" kullanıyor ve şubenin tüm bölümlerinin lokasyonları geliyor.
+export async function selectLokasyonlar(idBolum?: string): Promise<Lokasyon[]> {
   const response = await api.post<Lokasyon[]>("/api/lokasyon", {
-    type: "SELECT_LOCATION",
-    params: { IDBolum: idBolum },
+    type: "SELECT_LOKASYON",
+    ...(idBolum ? { IDBolum: idBolum } : {}),
   });
   return response.data;
 }
 
-export function useLokasyonlar(idBolum: number | undefined) {
+export function useLokasyonlar(idBolum: string = "") {
   return useQuery({
     queryKey: ["lokasyonlar", idBolum],
-    queryFn: () => selectLokasyonlar(idBolum as number),
-    enabled: !!idBolum,
+    queryFn: () => selectLokasyonlar(idBolum),
   });
 }
 
@@ -30,8 +31,8 @@ export type InsertLokasyonInput = {
 
 export async function insertLokasyon(input: InsertLokasyonInput) {
   const response = await api.post<Lokasyon[]>("/api/lokasyon", {
-    type: "INSERT_LOCATION",
-    params: input,
+    type: "INSERT_LOKASYON",
+    ...input,
   });
   return response.data;
 }
@@ -47,11 +48,35 @@ export function useCreateLokasyon() {
   });
 }
 
+// UPDATE LOKASYON
+export type UpdateLokasyonInput = InsertLokasyonInput & {
+  IDBolumLokasyon: string;
+};
+
+export async function updateLokasyon(input: UpdateLokasyonInput) {
+  const response = await api.post<Lokasyon[]>("/api/lokasyon", {
+    type: "UPDATE_LOKASYON",
+    ...input,
+  });
+  return response.data;
+}
+
+export function useUpdateLokasyon() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: UpdateLokasyonInput) => updateLokasyon(input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["lokasyonlar"] });
+    },
+  });
+}
+
 // DELETE LOKASYON
 export async function deleteLokasyon(idBolumLokasyon: string) {
   const response = await api.post<Lokasyon[]>("/api/lokasyon", {
-    type: "DELETE_LOCATION",
-    params: { IDBolumLokasyon: idBolumLokasyon },
+    type: "DELETE_LOKASYON",
+    IDBolumLokasyon: idBolumLokasyon,
   });
   return response.data;
 }

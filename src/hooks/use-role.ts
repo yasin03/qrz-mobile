@@ -3,7 +3,14 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useCallback } from "react";
 
 export function useRole() {
-  const idKullaniciTip = useAuthStore((state) => state.user?.IDKullaniciTip);
+  // Login API'si DB satırını olduğu gibi döndüğü için IDKullaniciTip number
+  // (3) gelebiliyor; USER_TYPES string ("3") olduğundan karşılaştırma için
+  // string'e çeviriyoruz.
+  const rawTip = useAuthStore((state) => state.user?.IDKullaniciTip);
+  const idKullaniciTip =
+    rawTip === null || rawTip === undefined
+      ? undefined
+      : (String(rawTip) as UserType);
 
   const hasRole = useCallback(
     (allowed: readonly UserType[]) =>

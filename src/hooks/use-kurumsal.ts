@@ -9,7 +9,10 @@ export function useBolumler() {
   return useQuery({
     queryKey: ["bolumler"],
     queryFn: async () => {
-      const response = await api.post<any[]>("/api/kurumsal");
+      // IDSube body'de gönderilmiyor: mobilde route token'daki şubeyi kullanıyor.
+      const response = await api.post<any[]>("/api/kurumsal/bolum", {
+        type: "GET_BOLUMLER",
+      });
       return response.data;
     },
     enabled: isAuthenticated && !!token,

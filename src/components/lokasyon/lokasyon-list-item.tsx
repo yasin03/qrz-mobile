@@ -38,7 +38,15 @@ export function LokasyonListItem({ item }: { item: Lokasyon }) {
   const handleEdit = () => {
     router.push({
       pathname: "/lokasyon/save",
-      params: { idBolumLokasyon: item.IDBolumLokasyon },
+      // Düzenleme ekranı formu bu değerlerle dolduruyor (ayrı istek atmadan).
+      // Enlem/boylam gönderilmiyor — orada her zaman telefonun güncel konumu
+      // alınıyor.
+      params: {
+        idBolumLokasyon: item.IDBolumLokasyon,
+        idBolum: String(item.IDBolum),
+        lokasyonAdi: item.LokasyonAdi,
+        aktif: item.Aktif ? "1" : "0",
+      },
     });
   };
 
