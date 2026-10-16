@@ -128,11 +128,17 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
-    await removeStorageItem(USER_KEY);
-
+    // Önce state'i temizle: SecureStore silme işlemi Android'de hata verir ya da
+    // takılırsa kullanıcı yine de oturumdan çıkmış olsun (yönlendirme state'e bağlı).
     set({
       user: null,
       isAuthenticated: false,
     });
+
+    try {
+      await removeStorageItem(USER_KEY);
+    } catch (error) {
+      console.error("Oturum bilgisi silinemedi:", error);
+    }
   },
 }));
