@@ -14,7 +14,6 @@ const HIDDEN_SCREENS = [
   "ozluk",
   "eklentiler",
   "kesintiler",
-  "bildirimler",
   "lokasyon",
 ];
 

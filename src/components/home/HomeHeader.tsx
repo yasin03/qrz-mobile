@@ -1,17 +1,13 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Bell, ShieldCheck } from "lucide-react-native";
-import { useRouter } from "expo-router";
+import { ShieldCheck } from "lucide-react-native";
 
 import { Badge } from "@/components/ui/badge";
 import { useAuthStore } from "@/stores/auth-store";
 
-// Ana sayfanın lacivert üst alanı: selamlama, rol rozeti, bildirim zili
+// Ana sayfanın lacivert üst alanı: selamlama, rol rozeti
 export function HomeHeader() {
   const user = useAuthStore((state) => state.user);
-  const router = useRouter();
-  // TODO: bildirim kaynağı (API) hazır olunca okunmamış sayısı buradan gelecek
-  const okunmamisBildirim = 0;
 
   return (
     <SafeAreaView edges={["top"]} className=" px-6">
@@ -19,7 +15,7 @@ export function HomeHeader() {
         <View className="flex-column gap-1">
           <Text className="text-white">Merhaba,</Text>
           <Text className="text-lg text-white font-bold">
-            {user?.Ad ?? "Ahmet Duman"}
+            {user?.Ad ?? ""}
           </Text>
           <Badge
             variant="secondary"
@@ -31,18 +27,6 @@ export function HomeHeader() {
             </Text>
           </Badge>
         </View>
-
-        <TouchableOpacity
-          onPress={() => router.push("/bildirimler")}
-          className="relative"
-        >
-          <Bell size={24} color="white" />
-          {okunmamisBildirim > 0 && (
-            <Text className="absolute -top-1 -right-1 text-xs text-white font-bold bg-red-500 rounded-full w-4 h-4 text-center">
-              {okunmamisBildirim}
-            </Text>
-          )}
-        </TouchableOpacity>
       </View>
 
       {/* stat kartının header içine taşan üst boşluğu */}

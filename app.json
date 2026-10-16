@@ -8,18 +8,24 @@
     "scheme": "qrzmobile",
     "userInterfaceStyle": "light",
     "ios": {
-      "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.qrzaman.qrzmobile"
+      "bundleIdentifier": "com.qrzaman.qrzmobile",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.qrzaman.qrzmobile",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.SYSTEM_ALERT_WINDOW"
+      ]
     },
     "web": {
       "output": "static",
@@ -33,15 +39,31 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
-          "dark": {
-            "backgroundColor": "#0a0a0a"
-          }
+          "backgroundColor": "#ffffff"
         }
       ],
       "expo-secure-store",
       "expo-image",
       "expo-web-browser",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Giriş-çıkış (PDKS) kaydı için QR kodu okutmak amacıyla kameranız kullanılır. Görüntü kaydedilmez.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Giriş-çıkış kaydının işyeri konumunda yapıldığını doğrulamak için QR okutma anında konumunuz alınır. Arka planda konum takibi yapılmaz.",
+          "locationAlwaysPermission": "Giriş-çıkış kaydının işyeri konumunda yapıldığını doğrulamak için QR okutma anında konumunuz alınır. Arka planda konum takibi yapılmaz.",
+          "locationWhenInUsePermission": "Giriş-çıkış kaydının işyeri konumunda yapıldığını doğrulamak için QR okutma anında konumunuz alınır.",
+          "isIosBackgroundLocationEnabled": false,
+          "isAndroidBackgroundLocationEnabled": false,
+          "isAndroidForegroundServiceEnabled": false
+        }
+      ],
       "./plugins/withNetworkSecurityConfig.js"
     ],
     "experiments": {

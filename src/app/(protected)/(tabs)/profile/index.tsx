@@ -10,7 +10,8 @@ import {
   Smartphone,
   ShieldCheck,
   ChevronRight,
-  Bell,
+  FileText,
+  Trash2,
   User,
   Clock,
   Wallet,
@@ -19,6 +20,8 @@ import {
 import { useAuthStore } from "@/stores/auth-store";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
+import { GIZLILIK_POLITIKASI_URL, HESAP_SILME_URL } from "@/constants/data";
 
 function getInitials(name?: string) {
   if (!name) return "?";
@@ -177,6 +180,19 @@ const Index = () => {
             icon={<Smartphone size={16} color="#64748b" />}
             label="Cihaz Bilgileri"
             onPress={() => router.push("/profile/cihaz-bilgileri")}
+            isLast
+          />
+        </SectionCard>
+        <SectionCard title="Yasal">
+          <MenuRow
+            icon={<FileText size={16} color="#64748b" />}
+            label="Gizlilik Politikası ve KVKK"
+            onPress={() => WebBrowser.openBrowserAsync(GIZLILIK_POLITIKASI_URL)}
+          />
+          <MenuRow
+            icon={<Trash2 size={16} color="#64748b" />}
+            label="Hesap Silme Talebi"
+            onPress={() => WebBrowser.openBrowserAsync(HESAP_SILME_URL)}
             isLast
           />
         </SectionCard>

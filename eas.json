@@ -24,7 +24,10 @@
       }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://app.qrzaman.com.tr"
+      }
     }
   },
   "submit": {

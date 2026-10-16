@@ -84,3 +84,7 @@ export function useYearOptions(length = 10, futureYears = 0) {
     return Array.from({ length }, (_, index) => (startYear + index).toString());
   }, [length, futureYears, currentYear]);
 }
+
+// qrz-admin'deki herkese açık /yasal sayfaları
+export const GIZLILIK_POLITIKASI_URL ="https://app.qrzaman.com.tr/yasal";
+export const HESAP_SILME_URL = "https://app.qrzaman.com.tr/hesap-silme";

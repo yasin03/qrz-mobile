@@ -10,7 +10,9 @@ import {
   View,
   Image,
   ScrollView,
+  Alert,
 } from "react-native";
+import * as WebBrowser from "expo-web-browser";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +22,7 @@ import { loginSchema, type LoginFormValues } from "@/schemas/auth-schema";
 import BottomWave from "@/components/svg/BottomWave";
 import TopRightDots from "@/components/svg/Dots";
 import { FormInput } from "@/components/form/form-input";
+import { GIZLILIK_POLITIKASI_URL } from "@/constants/data";
 
 export default function LoginScreen() {
   const loginMutation = useLogin();
@@ -84,8 +87,9 @@ export default function LoginScreen() {
           <Pressable
             className="mb-6 flex-row justify-end"
             onPress={() =>
-              alert(
-                `Şifremi Unuttum sayfası en kısa zamanda eklenecektir. \nAPI :  ${process.env.EXPO_PUBLIC_API_URL}`,
+              Alert.alert(
+                "Şifremi Unuttum",
+                "Şifrenizi sıfırlamak için şirketinizdeki yetkili yöneticiye başvurun.",
               )
             }
           >
@@ -118,7 +122,16 @@ export default function LoginScreen() {
           </Text>
         )}
 
-        <Text className="mt-10 text-center text-xs text-slate-400">
+        <Pressable
+          className="mt-10 self-center"
+          onPress={() => WebBrowser.openBrowserAsync(GIZLILIK_POLITIKASI_URL)}
+        >
+          <Text className="text-center text-xs font-medium text-qrz-blue underline">
+            Gizlilik Politikası ve KVKK Aydınlatma Metni
+          </Text>
+        </Pressable>
+
+        <Text className="mt-3 text-center text-xs text-slate-400">
           QR Zaman • Personel Yönetim Sistemi
         </Text>
       </ScrollView>
