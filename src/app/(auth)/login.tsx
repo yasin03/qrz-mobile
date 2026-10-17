@@ -4,14 +4,13 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
   View,
   Image,
   ScrollView,
   Alert,
 } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import * as WebBrowser from "expo-web-browser";
 
 import { Button } from "@/components/ui/button";
@@ -41,10 +40,10 @@ export default function LoginScreen() {
   };
 
   return (
+    // Klavye açılınca form yukarı kalkar (iOS + Android edge-to-edge)
     <KeyboardAvoidingView
-      className="flex-1 bg-white"
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 24}
+      behavior="padding"
+      style={{ flex: 1, backgroundColor: "#ffffff" }}
     >
       <TopRightDots />
       <ScrollView

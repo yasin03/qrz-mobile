@@ -6,7 +6,6 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { router } from "expo-router";
-import { X } from "lucide-react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -15,6 +14,7 @@ import { format } from "date-fns";
 import { useAuthStore } from "@/stores/auth-store";
 import { useCreateAvansTalep } from "@/hooks/use-avans";
 import { FormInput } from "@/components/form/form-input";
+import { FormSheetScreen } from "@/components/ui/form-sheet-screen";
 import { FormDatePicker } from "@/components/form/form-date-picker";
 
 const avansTalepSchema = z.object({
@@ -82,68 +82,61 @@ export default function AvansEkle() {
   };
 
   return (
-    <View className="bg-white p-6 pt-8">
-      <View className="flex-row items-center justify-between">
-        <Text className="text-lg font-semibold text-qrz-navy">
-          Yeni Avans Talebi
-        </Text>
-        <Pressable onPress={() => router.back()} hitSlop={10}>
-          <X size={22} color="#0f172a" />
+    <FormSheetScreen
+      title="Yeni Avans Talebi"
+      footer={
+        <Pressable
+          onPress={handleSubmit(onSubmit)}
+          disabled={createTalepMutation.isPending}
+          className="items-center rounded-lg bg-qrz-navy py-3 disabled:opacity-50"
+        >
+          {createTalepMutation.isPending ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text className="text-sm font-medium text-white">Talebi Gönder</Text>
+          )}
         </Pressable>
-      </View>
+      }
+    >
+      <FormInput
+        control={control}
+        name="Tutar"
+        label="Tutar"
+        placeholder="Talep edilen tutar"
+        format="money"
+      />
 
-      <View className="mt-6 gap-4">
-        <FormInput
-          control={control}
-          name="Tutar"
-          label="Tutar"
-          placeholder="Talep edilen tutar"
-          format="money"
-        />
+      <FormInput
+        control={control}
+        name="TaksitSayisi"
+        label="Taksit Sayısı"
+        placeholder="Talep edilen taksit sayısı"
+        format="number"
+      />
 
-        <FormInput
-          control={control}
-          name="TaksitSayisi"
-          label="Taksit Sayısı"
-          placeholder="Talep edilen taksit sayısı"
-          format="number"
-        />
+      <FormInput
+        control={control}
+        name="BordroKesintiTutari"
+        label="Aylık Ödenen Tutar"
+        placeholder=""
+        format="money"
+        disabled
+      />
 
-        <FormInput
-          control={control}
-          name="BordroKesintiTutari"
-          label="Aylık Ödenen Tutar"
-          placeholder=""
-          format="money"
-          disabled
-        />
+      <FormDatePicker
+        control={control}
+        name="OdemeBaslangicTarihi"
+        label="Ödeme Başlangıç Tarihi"
+        placeholder="Tarih seçin"
+      />
 
-        <FormDatePicker
-          control={control}
-          name="OdemeBaslangicTarihi"
-          label="Ödeme Başlangıç Tarihi"
-          placeholder="Tarih seçin"
-        />
-
-        <FormInput
-          control={control}
-          name="Mesaj"
-          label="Mesaj"
-          placeholder=""
-        />
-      </View>
-
-      <Pressable
-        onPress={handleSubmit(onSubmit)}
-        disabled={createTalepMutation.isPending}
-        className="mb-6 mt-4 items-center rounded-lg bg-qrz-navy py-3 disabled:opacity-50"
-      >
-        {createTalepMutation.isPending ? (
-          <ActivityIndicator color="white" />
-        ) : (
-          <Text className="text-sm font-medium text-white">Talebi Gönder</Text>
-        )}
-      </Pressable>
-    </View>
+      <FormInput
+        control={control}
+        name="Mesaj"
+        label="Mesaj"
+        type="textarea"
+        placeholder="Mesaj (opsiyonel)"
+      />
+    </FormSheetScreen>
   );
 }

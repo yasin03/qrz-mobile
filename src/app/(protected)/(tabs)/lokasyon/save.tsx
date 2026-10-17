@@ -12,8 +12,8 @@ import * as Location from "expo-location";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Alert } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { z } from "zod";
 
 const locationSchema = z.object({
@@ -136,63 +136,72 @@ const Save = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-1 gap-4 px-6 pt-4">
-        <Text className="text-lg font-medium text-qrz-navy">
-          {isEditMode ? "Konum Düzenle" : "Konum Kaydet"}
-        </Text>
+    // Klavye açılınca "Lokasyon Adı" input'u klavyenin üstüne kaydırılır (iOS + Android)
+    <KeyboardAwareScrollView
+      style={{ flex: 1, backgroundColor: "#ffffff" }}
+      contentContainerStyle={{
+        gap: 16,
+        paddingHorizontal: 24,
+        paddingTop: 24,
+        paddingBottom: 32,
+      }}
+      keyboardShouldPersistTaps="handled"
+      bottomOffset={24}
+    >
+      <Text className="text-lg font-medium text-qrz-navy">
+        {isEditMode ? "Konum Düzenle" : "Konum Kaydet"}
+      </Text>
 
-        {isFetchingLocation ? (
-          <Text>Konum alınıyor...</Text>
-        ) : errorMsg ? (
-          <Text className="text-red-500">{errorMsg}</Text>
-        ) : null}
-        <FormSelect
-          control={control}
-          name="idBolum"
-          label="Bölüm"
-          vertical
-          isLoading={isBolumlerLoading}
-          options={
-            bolumler?.map((b) => ({
-              value: String(b.IDBolum),
-              label: b.BolumAdi,
-            })) ?? []
-          }
-        />
+      {isFetchingLocation ? (
+        <Text>Konum alınıyor...</Text>
+      ) : errorMsg ? (
+        <Text className="text-red-500">{errorMsg}</Text>
+      ) : null}
+      <FormSelect
+        control={control}
+        name="idBolum"
+        label="Bölüm"
+        vertical
+        isLoading={isBolumlerLoading}
+        options={
+          bolumler?.map((b) => ({
+            value: String(b.IDBolum),
+            label: b.BolumAdi,
+          })) ?? []
+        }
+      />
 
-        <FormInput
-          control={control}
-          name="locationName"
-          label="Lokasyon Adı"
-          vertical
-        />
+      <FormInput
+        control={control}
+        name="locationName"
+        label="Lokasyon Adı"
+        vertical
+      />
 
-        <FormSwitch control={control} name="status" label="Durum" vertical />
+      <FormSwitch control={control} name="status" label="Durum" vertical />
 
-        <FormInput
-          control={control}
-          name="latitude"
-          label="Enlem"
-          disabled
-          vertical
-        />
-        <FormInput
-          control={control}
-          name="longitude"
-          label="Boylam"
-          disabled
-          vertical
-        />
+      <FormInput
+        control={control}
+        name="latitude"
+        label="Enlem"
+        disabled
+        vertical
+      />
+      <FormInput
+        control={control}
+        name="longitude"
+        label="Boylam"
+        disabled
+        vertical
+      />
 
-        <Button
-          onPress={handleSubmit(onSubmit)}
-          disabled={isFetchingLocation || isSaving}
-        >
-          <Text>{isSaving ? "Kaydediliyor..." : "Kaydet"}</Text>
-        </Button>
-      </View>
-    </SafeAreaView>
+      <Button
+        onPress={handleSubmit(onSubmit)}
+        disabled={isFetchingLocation || isSaving}
+      >
+        <Text>{isSaving ? "Kaydediliyor..." : "Kaydet"}</Text>
+      </Button>
+    </KeyboardAwareScrollView>
   );
 };
 

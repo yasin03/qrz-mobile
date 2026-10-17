@@ -14,12 +14,15 @@ import { QrScanStatus } from "@/components/qr-tara/qr-scan-status";
 import { QrScannerView } from "@/components/qr-tara/qr-scanner-view";
 import { YonSecilmedi } from "@/components/qr-tara/yon-secilmedi";
 import { YonSecimDialog } from "@/components/qr-tara/yon-secim-dialog";
+import { useStatusBarStyle } from "@/hooks/use-status-bar-style";
 import {
   getPositionWithTimeout,
   parseQrPayload,
 } from "@/components/qr-tara/utils";
 
 const QRTara = () => {
+  // Siyah kamera ekranı üstünde beyaz durum çubuğu ikonları
+  useStatusBarStyle("light-content");
   const router = useRouter();
   const { hasRole } = useRole();
   const { ensurePermissions, permissionsGranted } = usePermissions();

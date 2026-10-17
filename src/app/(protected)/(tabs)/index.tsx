@@ -9,8 +9,11 @@ import { HomeHeader } from "@/components/home/HomeHeader";
 import { BugunPdksKarti } from "@/components/home/BugunPdksKarti";
 import { PersonelDashboard } from "@/components/dashboard/PersonelDashboard";
 import { YoneticiDashboard } from "@/components/dashboard/YoneticiDashboard";
+import { useStatusBarStyle } from "@/hooks/use-status-bar-style";
 
 export default function PersonelHomeScreen() {
+  // Lacivert başlık üstünde beyaz durum çubuğu ikonları
+  useStatusBarStyle("light-content");
   const user = useAuthStore((state) => state.user);
 
   // Personel kendi özetini, admin / yönetici şube özetini görür

@@ -123,13 +123,25 @@ export function FormInput<T extends FieldValues>({
               keyboardType={FORMAT_KEYBOARD[format!] ?? TYPE_KEYBOARD[type]}
               maxLength={FORMAT_MAXLENGTH[format!] ?? maxLength}
               startIcon={startIcon}
+              // Textarea: Input'un kutusu varsayılan olarak sabit yükseklikte
+              // (h-10) ve dikey ortalı; daha uzun olan metin alanı kutudan
+              // taşıp yazılar üst kenara yapışık görünüyordu. Kutu yüksekliğini
+              // içeriğe bırakıp üstten hizalıyoruz, iç boşluğu kutu veriyor.
               style={
                 isTextarea
-                  ? { height: rows * 20 + 16, textAlignVertical: "top" }
+                  ? {
+                      height: rows * 20,
+                      textAlignVertical: "top",
+                      paddingTop: 0,
+                      paddingBottom: 0,
+                    }
                   : undefined
               }
-              className={cn(isPassword && "pr-10", isTextarea && "py-2")}
-              containerClassName={inputClassName}
+              className={cn(isPassword && "pr-10")}
+              containerClassName={cn(
+                isTextarea && "h-auto items-start py-2.5 sm:h-auto",
+                inputClassName,
+              )}
             />
             {isPassword && (
               <Pressable

@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { GIZLILIK_POLITIKASI_URL, HESAP_SILME_URL } from "@/constants/data";
+import { useStatusBarStyle } from "@/hooks/use-status-bar-style";
 
 function getInitials(name?: string) {
   if (!name) return "?";
@@ -101,6 +102,8 @@ function SectionCard({
 }
 
 const Index = () => {
+  // Lacivert başlık üstünde beyaz durum çubuğu ikonları
+  useStatusBarStyle("light-content");
   const insets = useSafeAreaInsets();
   const logout = useAuthStore((state) => state.logout);
   const user = useAuthStore((state) => state.user);

@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { ActivityIndicator, Alert, Pressable, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Pressable, Text, View } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { router, useLocalSearchParams } from "expo-router";
 import { X } from "lucide-react-native";
 import { useForm } from "react-hook-form";
@@ -169,7 +170,13 @@ export function ParametreForm({ tur }: { tur: ParametreTur }) {
   };
 
   return (
-    <ScrollView className="flex-1 bg-white p-6 pt-10" keyboardShouldPersistTaps="handled">
+    // Klavye açılınca odaklanan input klavyenin üstüne kaydırılır (iOS + Android)
+    <KeyboardAwareScrollView
+      style={{ flex: 1, backgroundColor: "#ffffff" }}
+      contentContainerStyle={{ padding: 24, paddingTop: 40 }}
+      keyboardShouldPersistTaps="handled"
+      bottomOffset={24}
+    >
       <View className="flex-row items-center justify-between">
         <Text className="text-lg font-semibold text-qrz-navy">
           {isEdit ? `${config.tekil} Düzenle` : `Yeni ${config.tekil}`}
@@ -254,6 +261,6 @@ export function ParametreForm({ tur }: { tur: ParametreTur }) {
           </Text>
         )}
       </Pressable>
-    </ScrollView>
+    </KeyboardAwareScrollView>
   );
 }

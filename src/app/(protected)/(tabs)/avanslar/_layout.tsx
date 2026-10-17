@@ -1,19 +1,12 @@
 import { Stack } from "expo-router";
 
+import { FORM_SHEET_OPTIONS } from "@/components/ui/form-sheet-screen";
+
 export default function AvansLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
-      <Stack.Screen
-        name="ekle"
-        options={{
-          presentation: "formSheet",
-          // Sheet içerik yüksekliği kadar açılır (tam ekran değil)
-          sheetAllowedDetents: "fitToContents",
-          sheetGrabberVisible: true,
-          sheetCornerRadius: 24,
-        }}
-      />
+      <Stack.Screen name="ekle" options={FORM_SHEET_OPTIONS} />
     </Stack>
   );
 }

@@ -12,9 +12,14 @@ export function HomeHeader() {
   return (
     <SafeAreaView edges={["top"]} className=" px-6">
       <View className="flex-row items-center justify-between mt-4">
-        <View className="flex-column gap-1">
+        {/* flex-1: genişlik metnin ölçümüne değil satıra göre belirlensin; aksi halde
+            kalın yazı ölçülenden geniş çizilip sondaki harf/kelime kırpılıyor */}
+        <View className="flex-1 gap-1">
           <Text className="text-white">Merhaba,</Text>
-          <Text className="text-lg text-white font-bold">
+          <Text
+            className="text-lg text-white font-bold"
+            numberOfLines={1}
+          >
             {user?.Ad ?? ""}
           </Text>
           <Badge

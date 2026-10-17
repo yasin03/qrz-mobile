@@ -7,6 +7,7 @@ import { Check, Search } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import { Controller, type Control, type FieldPath, type FieldValues } from "react-hook-form";
 import { FlatList, Modal, Pressable, TouchableOpacity, View } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Field } from "./field";
@@ -102,70 +103,73 @@ export function FormMultiSelect<T extends FieldValues>({
             </Button>
 
             <Modal visible={visible} transparent animationType="fade" onRequestClose={kapat}>
-              <Pressable className="flex-1 justify-end bg-black/40" onPress={kapat}>
-                <SheetPanel className="max-h-[80%]">
-                  <Pressable
-                    onPress={() => {}}
-                    className="flex-shrink rounded-t-2xl bg-white px-4 pt-4"
-                    style={{ paddingBottom: insets.bottom + 12 }}
-                  >
-                    <View className="mb-3 flex-row items-center justify-between">
-                      <Text className="text-base font-medium text-qrz-navy">{label}</Text>
-                      <TouchableOpacity onPress={tumunuSec} hitSlop={10}>
-                        <Text className="text-sm font-medium text-qrz-blue">Tümünü Seç</Text>
-                      </TouchableOpacity>
-                    </View>
-
-                    <Input
-                      value={arama}
-                      onChangeText={setArama}
-                      placeholder={searchPlaceholder}
-                      startIcon={<Search size={16} color="#64748B" />}
-                      autoCorrect={false}
-                      containerClassName="mb-2"
-                    />
-
-                    <FlatList
-                      data={filtreli}
-                      keyExtractor={(item) => item.value}
-                      keyboardShouldPersistTaps="handled"
-                      ListEmptyComponent={
-                        <Text className="py-6 text-center text-sm text-muted-foreground">
-                          {emptyMessage}
-                        </Text>
-                      }
-                      renderItem={({ item }) => {
-                        const isSelected = seciliSet.has(item.value);
-                        return (
-                          <TouchableOpacity
-                            className="flex-row items-center gap-3 border-b border-gray-100 py-3"
-                            onPress={() => toggle(item.value)}
-                          >
-                            <View
-                              className={cn(
-                                "h-5 w-5 items-center justify-center rounded border",
-                                isSelected ? "border-qrz-navy bg-qrz-navy" : "border-gray-300",
-                              )}
+              {/* Klavye açılınca pencere klavyenin üstüne kalkar (iOS + Android) */}
+              <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+                <Pressable className="flex-1 justify-end bg-black/40" onPress={kapat}>
+                  <SheetPanel className="max-h-[80%]">
+                    <Pressable
+                      onPress={() => {}}
+                      className="flex-shrink rounded-t-2xl bg-white px-4 pt-4"
+                      style={{ paddingBottom: insets.bottom + 12 }}
+                    >
+                      <View className="mb-3 flex-row items-center justify-between">
+                        <Text className="text-base font-medium text-qrz-navy">{label}</Text>
+                        <TouchableOpacity onPress={tumunuSec} hitSlop={10}>
+                          <Text className="text-sm font-medium text-qrz-blue">Tümünü Seç</Text>
+                        </TouchableOpacity>
+                      </View>
+  
+                      <Input
+                        value={arama}
+                        onChangeText={setArama}
+                        placeholder={searchPlaceholder}
+                        startIcon={<Search size={16} color="#64748B" />}
+                        autoCorrect={false}
+                        containerClassName="mb-2"
+                      />
+  
+                      <FlatList
+                        data={filtreli}
+                        keyExtractor={(item) => item.value}
+                        keyboardShouldPersistTaps="handled"
+                        ListEmptyComponent={
+                          <Text className="py-6 text-center text-sm text-muted-foreground">
+                            {emptyMessage}
+                          </Text>
+                        }
+                        renderItem={({ item }) => {
+                          const isSelected = seciliSet.has(item.value);
+                          return (
+                            <TouchableOpacity
+                              className="flex-row items-center gap-3 border-b border-gray-100 py-3"
+                              onPress={() => toggle(item.value)}
                             >
-                              {isSelected && <Check size={14} color="#FFFFFF" />}
-                            </View>
-                            <View className="flex-1">
-                              <Text>{item.label}</Text>
-                              {item.description ? (
-                                <Text className="text-xs text-muted-foreground">{item.description}</Text>
-                              ) : null}
-                            </View>
-                          </TouchableOpacity>
-                        );
-                      }}
-                    />
-
-                    <Button className="mt-3" onPress={kapat}>
-                      <Text>Tamam{secili.length ? ` (${secili.length})` : ""}</Text>
-                    </Button>
-                  </Pressable>
-                </SheetPanel>
-              </Pressable>
+                              <View
+                                className={cn(
+                                  "h-5 w-5 items-center justify-center rounded border",
+                                  isSelected ? "border-qrz-navy bg-qrz-navy" : "border-gray-300",
+                                )}
+                              >
+                                {isSelected && <Check size={14} color="#FFFFFF" />}
+                              </View>
+                              <View className="flex-1">
+                                <Text>{item.label}</Text>
+                                {item.description ? (
+                                  <Text className="text-xs text-muted-foreground">{item.description}</Text>
+                                ) : null}
+                              </View>
+                            </TouchableOpacity>
+                          );
+                        }}
+                      />
+  
+                      <Button className="mt-3" onPress={kapat}>
+                        <Text>Tamam{secili.length ? ` (${secili.length})` : ""}</Text>
+                      </Button>
+                    </Pressable>
+                  </SheetPanel>
+                </Pressable>
+              </KeyboardAvoidingView>
             </Modal>
           </Field>
         );

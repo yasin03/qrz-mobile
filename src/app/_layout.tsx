@@ -8,19 +8,29 @@ import {
 } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
-import { Appearance } from "react-native";
+import { Appearance, Platform, StatusBar } from "react-native";
 import { colorScheme as nwColorScheme } from "nativewind";
 import { QueryProvider } from "@/providers/query-provider";
 import { useAuthStore } from "@/stores/auth-store";
 import { CustomSplashScreen } from "@/components/splash-screen";
 import { PortalHost } from "@rn-primitives/portal";
 import { ConfirmDialogProvider } from "@/providers/confirm-dialog-provider";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 SplashScreen.preventAutoHideAsync();
 
 // Uygulama her zaman açık temada çalışır; telefonun dark mode ayarı dikkate alınmaz.
 // Appearance native taraf (formSheet, modal, klavye vb.), nwColorScheme ise className'ler için.
 Appearance.setColorScheme("light");
 nwColorScheme.set("light");
+
+// Android'de içerik iOS'taki gibi durum çubuğunun arkasına uzansın: lacivert başlıklar
+// (ana sayfa, profil) en üste kadar dolsun, ekranlar üst boşluğu insets.top ile versin.
+// Edge-to-edge zaten açıksa bu çağrıların etkisi olmaz.
+if (Platform.OS === "android") {
+  StatusBar.setTranslucent(true);
+  StatusBar.setBackgroundColor("transparent");
+}
+StatusBar.setBarStyle("dark-content");
 
 export default function RootLayout() {
   const router = useRouter();
@@ -64,7 +74,8 @@ export default function RootLayout() {
   }, [isHydrated, isAuthenticated, segments]);
 
   return (
-    <>
+    // Klavye açılınca formların yukarı kayması için (iOS + Android edge-to-edge)
+    <KeyboardProvider>
       <QueryProvider>
         <ThemeProvider
           value={DefaultTheme}
@@ -82,6 +93,6 @@ export default function RootLayout() {
           <ConfirmDialogProvider />
         </ThemeProvider>
       </QueryProvider>
-    </>
+    </KeyboardProvider>
   );
 }
