@@ -1,12 +1,9 @@
 import { useMemo, useState } from "react";
 import { View, Text, Pressable, ActivityIndicator } from "react-native";
-import {  SlidersHorizontal, Check, X } from "lucide-react-native";
+import { SlidersHorizontal, Check, X } from "lucide-react-native";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
-import {
-  useAvansTalepleri,
-  useUpdateAvansTalep,
-} from "@/hooks/use-avans";
+import { useAvansTalepleri, useUpdateAvansTalep } from "@/hooks/use-avans";
 import { getDefaultIzinTarihAraligi } from "@/lib/date-helpers";
 import { confirm } from "@/stores/dialog-store";
 import { RedAciklamaModal } from "@/components/avans/red-aciklama-modal";
@@ -48,13 +45,14 @@ export default function AvansTalepListesi({
       description: `${item.Ad} ${item.Soyad} - ${item.Tutar} TL tutarındaki avans talebi onaylansın mı?`,
       confirmText: "Onayla",
     });
+    const payload = {
+      IDSubePersonelAvansTalep: item.IDSubePersonelAvansTalep,
+      IDKullanici: user?.IDKullanici ?? "0",
+      KabulRed: "1",
+      RedAciklama: "",
+    };
     if (ok) {
-      updateTalepMutation.mutate({
-        IDSubePersonelAvansTalep: item.IDSubePersonelAvansTalep,
-        IDKullanici: user?.IDKullanici ?? "0",
-        KabulRed: "1",
-        RedAciklama: "",
-      });
+      updateTalepMutation.mutate(payload);
     }
   };
 
@@ -107,7 +105,9 @@ export default function AvansTalepListesi({
       label: "Tutar",
       flex: 1,
       render: (item: AvansTalepKaydi) => (
-        <Text className="text-xs text-gray-700">{formatMoney(item.Tutar) } ₺</Text>
+        <Text className="text-xs text-gray-700">
+          {formatMoney(item.Tutar)} ₺
+        </Text>
       ),
     },
     {
@@ -134,7 +134,9 @@ export default function AvansTalepListesi({
       label: "Tutar",
       flex: 1,
       render: (item: AvansTalepKaydi) => (
-        <Text className="text-xs text-gray-700">{formatMoney(item.Tutar) } ₺</Text>
+        <Text className="text-xs text-gray-700">
+          {formatMoney(item.Tutar)} ₺
+        </Text>
       ),
     },
     {

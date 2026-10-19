@@ -2,6 +2,7 @@ import { SheetPanel } from "@/components/ui/sheet-panel";
 import { PdksYon } from "@/types/pdks";
 import { LocationEdit, LogIn, LogOut, X } from "lucide-react-native";
 import { Modal, Pressable, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Props = {
   visible: boolean;
@@ -18,16 +19,28 @@ export function YonSecimDialog({
   showLocationButton,
   onLocationPress,
 }: Props) {
+  const insets = useSafeAreaInsets();
+
   return (
+    // Android'de uygulama kenardan kenara (edge-to-edge) çiziliyor. Modal
+    // status/navigation bar'ı hesaba katmadan yerleşince hem panelin altında
+    // (navigation bar hizasında) boşluk kalıyor hem de dokunma alanları
+    // çizilen yerden kayıyordu — küçük X butonu bu yüzden çalışmıyordu.
+    // Modal'ı iki barın da altına uzatıp alt boşluğu inset ile veriyoruz.
     <Modal
       visible={visible}
       transparent
       animationType="fade"
       onRequestClose={onClose}
+      statusBarTranslucent
+      navigationBarTranslucent
     >
       <View className="flex-1 justify-end bg-black/40">
         <SheetPanel>
-          <View className="rounded-t-3xl bg-white px-5 pb-8 pt-5">
+          <View
+            className="rounded-t-3xl bg-white px-5 pt-5"
+            style={{ paddingBottom: insets.bottom + 32 }}
+          >
             {/* Header */}
             <View className="mb-6 flex-row items-center justify-between">
               <Text className="text-lg font-semibold text-qrz-navy">
@@ -36,6 +49,7 @@ export function YonSecimDialog({
 
               <Pressable
                 onPress={onClose}
+                hitSlop={12}
                 className="rounded-full bg-gray-100 p-2"
               >
                 <X size={18} color="#64748b" />
