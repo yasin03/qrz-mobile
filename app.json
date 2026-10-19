@@ -46,6 +46,15 @@
       "expo-image",
       "expo-web-browser",
       [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableMinifyInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true
+          }
+        }
+      ],
+      [
         "expo-camera",
         {
           "cameraPermission": "Giriş-çıkış (PDKS) kaydı için QR kodu okutmak amacıyla kameranız kullanılır. Görüntü kaydedilmez.",

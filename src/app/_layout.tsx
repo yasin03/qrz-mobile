@@ -8,7 +8,7 @@ import {
 } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
-import { Appearance, Platform, StatusBar } from "react-native";
+import { Appearance, StatusBar } from "react-native";
 import { colorScheme as nwColorScheme } from "nativewind";
 import { QueryProvider } from "@/providers/query-provider";
 import { useAuthStore } from "@/stores/auth-store";
@@ -23,13 +23,8 @@ SplashScreen.preventAutoHideAsync();
 Appearance.setColorScheme("light");
 nwColorScheme.set("light");
 
-// Android'de içerik iOS'taki gibi durum çubuğunun arkasına uzansın: lacivert başlıklar
-// (ana sayfa, profil) en üste kadar dolsun, ekranlar üst boşluğu insets.top ile versin.
-// Edge-to-edge zaten açıksa bu çağrıların etkisi olmaz.
-if (Platform.OS === "android") {
-  StatusBar.setTranslucent(true);
-  StatusBar.setBackgroundColor("transparent");
-}
+// Android'de uygulama edge-to-edge çalışır (targetSdk 36); durum çubuğu rengi ayarlanmaz,
+// yalnızca ikon rengi ekran bazında değişir (bkz. hooks/use-status-bar-style.ts).
 StatusBar.setBarStyle("dark-content");
 
 export default function RootLayout() {
