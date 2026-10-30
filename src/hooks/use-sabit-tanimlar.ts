@@ -187,6 +187,7 @@ export const personelSabitTanimlarKeys = {
   all: ["personel-sabit-tanimlar"] as const,
   eklentiTipleri: ["tahakkuk-tipleri", "Yardım"] as const,
   kesintiTipleri: ["tahakkuk-tipleri", "Kesinti"] as const,
+  mesaiTipleri: ["tahakkuk-tipleri", "Mesai"] as const,
 };
 
 export function usePersonelSabitTanimlar() {
@@ -214,6 +215,12 @@ export function usePersonelSabitTanimlar() {
     staleTime: 1000 * 60 * 60, // 1 saat
   });
 
+  const mesaiQuery = useQuery({
+    queryKey: personelSabitTanimlarKeys.mesaiTipleri,
+    queryFn: () => getTahakkukTipleri("Mesai"),
+    staleTime: 1000 * 60 * 60, // 1 saat
+  });
+
   const data = query.data ?? [];
   const izinData = izinQuery.data ?? [];
  
@@ -227,5 +234,6 @@ export function usePersonelSabitTanimlar() {
     izinTipleri: toIzinTipleriOptions(izinData),
     eklentiTipleri: toTahakkukTipleriOptions(eklentiQuery.data),
     kesintiTipleri: toTahakkukTipleriOptions(kesintiQuery.data),
+    mesaiTipleri: toTahakkukTipleriOptions(mesaiQuery.data),
   };
 }

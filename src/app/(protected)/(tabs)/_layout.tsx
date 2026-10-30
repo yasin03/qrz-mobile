@@ -1,7 +1,7 @@
 import { TAB_BAR_HEIGHT, TabBarMenu } from "@/components/tab-bar-menu";
 import { Tabs } from "expo-router";
 import type { BottomTabBarButtonProps } from "expo-router/build/react-navigation/bottom-tabs/types";
-import { Clock, House, QrCode, UserCircle } from "lucide-react-native";
+import { House, IdCard, QrCode, UserCircle } from "lucide-react-native";
 import { useState } from "react";
 import { Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -11,7 +11,7 @@ const HIDDEN_SCREENS = [
   "avanslar",
   "puantaj",
   "bordro",
-  "ozluk",
+  "pdks",
   "eklentiler",
   "kesintiler",
   "lokasyon",
@@ -89,10 +89,11 @@ export default function ProtectedLayout() {
           }}
         />
         <Tabs.Screen
-          name="pdks"
+          name="ozluk"
           options={{
-            title: "PDKS",
-            tabBarIcon: ({ color, size }) => <Clock color={color} size={size} />,
+            title: "Özlük",
+            tabBarIcon: ({ color, size }) => <IdCard color={color} size={size} />,
+            popToTopOnBlur: true,
           }}
         />
         <Tabs.Screen

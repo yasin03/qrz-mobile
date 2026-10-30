@@ -1,13 +1,15 @@
 import { Text } from "@/components/ui/text";
+import { usePersonelYetki } from "@/hooks/use-per-yetki";
 import { useRole } from "@/hooks/use-role";
 import { USER_TYPES, type UserType } from "@/lib/user-types";
+import type { PerYetkiKey } from "@/types/per-yetki";
 import { useRouter, type Href } from "expo-router";
 import {
   CalendarCheck,
   CalendarDays,
+  Clock,
   Receipt,
   HandCoins,
-  IdCard,
   LayoutGrid,
   MinusCircle,
   PlusCircle,
@@ -38,6 +40,8 @@ type MenuItem = {
   href: Href;
   /** Bu menüyü görebilecek kullanıcı tipleri. */
   roles: readonly UserType[];
+  /** Personel için bu menüyü açan yetki bayrağı. Admin/Yönetici'yi etkilemez. */
+  yetki?: PerYetkiKey;
 };
 
 const { ADMIN, YONETICI, PERSONEL } = USER_TYPES;
@@ -56,13 +60,6 @@ const MENU_ITEMS: MenuItem[] = [
     icon: HandCoins,
     iconColor: "#F59E0B",
     href: "/avanslar",
-    roles: TUMU,
-  },
-  {
-    title: "Özlük",
-    icon: IdCard,
-    iconColor: "#6366F1",
-    href: "/ozluk",
     roles: TUMU,
   },
   {
@@ -85,6 +82,7 @@ const MENU_ITEMS: MenuItem[] = [
     iconColor: "#0EA5E9",
     href: "/bordro",
     roles: TUMU,
+    yetki: "PersonelBordroGorur",
   },
   {
     title: "Puantaj",
@@ -92,6 +90,15 @@ const MENU_ITEMS: MenuItem[] = [
     iconColor: "#8B5CF6",
     href: "/puantaj",
     roles: TUMU,
+    yetki: "PersonelPuantajGorur",
+  },
+  {
+    title: "PDKS",
+    icon: Clock,
+    iconColor: "#052346",
+    href: "/pdks",
+    roles: TUMU,
+    yetki: "PersonelPdksGorur",
   },
 ];
 
@@ -104,8 +111,20 @@ type Props = {
 export function TabBarMenu({ open, onOpenChange, bottomInset }: Props) {
   const router = useRouter();
   const { hasRole } = useRole();
-  const menuItems = MENU_ITEMS.filter((item) => hasRole(item.roles));
+  const { can, isLoading: isLoadingYetki, refresh } = usePersonelYetki();
+  // Yetkiler yüklenirken yetkiye bağlı öğeleri gizli tut.
+  const menuItems = MENU_ITEMS.filter(
+    (item) =>
+      hasRole(item.roles) &&
+      (!item.yetki || (!isLoadingYetki && can(item.yetki))),
+  );
   const tabBarHeight = TAB_BAR_HEIGHT + bottomInset;
+
+  // Menü her açıldığında yetkileri tazele (admin web'den değiştirmiş olabilir)
+  useEffect(() => {
+    if (open) refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   // Android geri tuşu menüyü kapatsın
   useEffect(() => {

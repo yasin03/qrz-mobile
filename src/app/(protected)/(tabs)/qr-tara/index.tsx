@@ -156,7 +156,7 @@ const QRTara = () => {
             onPress: () => {
               setScanSuccess(false);
               scanLockRef.current = false;
-              router.replace("/(protected)/(tabs)/pdks");
+              router.replace("/(protected)/(tabs)");
             },
           },
         ],

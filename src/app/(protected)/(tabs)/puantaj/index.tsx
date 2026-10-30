@@ -3,6 +3,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { DetailScreenHeader } from "@/components/detail-screen-header";
 import { PersonelPuantajGorunumu } from "@/components/puantaj/PersonelPuantajGorunumu";
 import { PuantajYonetimListesi } from "@/components/puantaj/PuantajYonetimListesi";
+import { PersonelYetkiGuard } from "@/components/personel-yetki-guard";
 import { useRole } from "@/hooks/use-role";
 import { useAuthStore } from "@/stores/auth-store";
 
@@ -18,7 +19,9 @@ export default function Puantaj() {
       {isYoneticiVeyaAdmin ? (
         <PuantajYonetimListesi />
       ) : (
-        <PersonelPuantajGorunumu idSubePersonel={user?.IDSubePersonel} />
+        <PersonelYetkiGuard yetki="PersonelPuantajGorur">
+          <PersonelPuantajGorunumu idSubePersonel={user?.IDSubePersonel} />
+        </PersonelYetkiGuard>
       )}
     </SafeAreaView>
   );

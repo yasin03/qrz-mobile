@@ -21,6 +21,7 @@ import {
 
 import { getAyAdi } from "@/components/puantaj/puantaj-helpers";
 import { formatMoney } from "@/lib/format-helpers";
+import { usePersonelYetki } from "@/hooks/use-per-yetki";
 import { cn } from "@/lib/utils";
 import type { PersonelDashboard as PersonelDashboardData } from "@/types/dashboard";
 import { BolumBaslik, KartGrid, StatKart } from "./DashboardKart";
@@ -58,6 +59,10 @@ type Props = {
 };
 
 export function PersonelDashboard({ data, loading }: Props) {
+  const { can, isLoading: isLoadingYetki } = usePersonelYetki();
+  // Admin'in kapattığı bordro/puantaj kartları gösterilmez.
+  const bordroGorur = !isLoadingYetki && can("PersonelBordroGorur");
+  const puantajGorur = !isLoadingYetki && can("PersonelPuantajGorur");
   const router = useRouter();
   const [maasGizli, toggleMaas] = useMaasGizli();
 
@@ -167,34 +172,36 @@ export function PersonelDashboard({ data, loading }: Props) {
       </KartGrid>
 
       <BolumBaslik title="Maaş & Ödemeler" />
-      <StatKart
-        wide
-        icon={Receipt}
-        color="#0EA5E9"
-        title={maas ? `Son Bordro · ${getAyAdi(Number(maas.Ay))} ${maas.Yil}` : "Son Bordro"}
-        loading={loading}
-        value={maas ? (maasGizli ? "•••••• ₺" : tl(maas.NetOdenen)) : "Hesaplanmış bordro yok"}
-        sub={
-          maas
-            ? `Net ödenen${maasGizli ? "" : ` · Ödenecek ${tl(maas.OdenecekTutar)}`} · ${
-                maas.Onayli ? "Onaylı" : "Onay bekliyor"
-              }`
-            : null
-        }
-        href="/bordro"
-        right={
-          maas ? (
-            <Pressable
-              onPress={toggleMaas}
-              hitSlop={10}
-              accessibilityLabel={maasGizli ? "Maaşı göster" : "Maaşı gizle"}
-              className={cn("h-7 w-7 items-center justify-center rounded-full bg-slate-100")}
-            >
-              {maasGizli ? <Eye size={14} color="#64748B" /> : <EyeOff size={14} color="#64748B" />}
-            </Pressable>
-          ) : null
-        }
-      />
+      {bordroGorur && (
+        <StatKart
+          wide
+          icon={Receipt}
+          color="#0EA5E9"
+          title={maas ? `Son Bordro · ${getAyAdi(Number(maas.Ay))} ${maas.Yil}` : "Son Bordro"}
+          loading={loading}
+          value={maas ? (maasGizli ? "•••••• ₺" : tl(maas.NetOdenen)) : "Hesaplanmış bordro yok"}
+          sub={
+            maas
+              ? `Net ödenen${maasGizli ? "" : ` · Ödenecek ${tl(maas.OdenecekTutar)}`} · ${
+                  maas.Onayli ? "Onaylı" : "Onay bekliyor"
+                }`
+              : null
+          }
+          href="/bordro"
+          right={
+            maas ? (
+              <Pressable
+                onPress={toggleMaas}
+                hitSlop={10}
+                accessibilityLabel={maasGizli ? "Maaşı göster" : "Maaşı gizle"}
+                className={cn("h-7 w-7 items-center justify-center rounded-full bg-slate-100")}
+              >
+                {maasGizli ? <Eye size={14} color="#64748B" /> : <EyeOff size={14} color="#64748B" />}
+              </Pressable>
+            ) : null
+          }
+        />
+      )}
       <KartGrid>
         <StatKart
           icon={HandCoins}
@@ -211,19 +218,21 @@ export function PersonelDashboard({ data, loading }: Props) {
           }
           href="/avanslar"
         />
-        <StatKart
-          icon={CalendarDays}
-          color="#8B5CF6"
-          title={puantaj ? `Puantaj · ${getAyAdi(Number(puantaj.Ay))}` : "Puantaj"}
-          loading={loading}
-          value={puantaj ? `${puantaj.CalisilanGun} gün` : "Kayıt yok"}
-          sub={
-            puantaj
-              ? `${puantaj.CalisilanSaat} saat${puantaj.FazlaMesai ? ` · FM ${puantaj.FazlaMesai}` : ""}`
-              : null
-          }
-          href="/puantaj"
-        />
+        {puantajGorur && (
+          <StatKart
+            icon={CalendarDays}
+            color="#8B5CF6"
+            title={puantaj ? `Puantaj · ${getAyAdi(Number(puantaj.Ay))}` : "Puantaj"}
+            loading={loading}
+            value={puantaj ? `${puantaj.CalisilanGun} gün` : "Kayıt yok"}
+            sub={
+              puantaj
+                ? `${puantaj.CalisilanSaat} saat${puantaj.FazlaMesai ? ` · FM ${puantaj.FazlaMesai}` : ""}`
+                : null
+            }
+            href="/puantaj"
+          />
+        )}
         <StatKart
           icon={PlusCircle}
           color="#10B981"
