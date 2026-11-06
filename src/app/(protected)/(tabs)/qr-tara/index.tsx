@@ -6,7 +6,9 @@ import { BarcodeScanningResult } from "expo-camera";
 import * as Location from "expo-location";
 import { useEffect, useRef, useState } from "react";
 import { View, Alert } from "react-native";
-import { usePdksMutation } from "@/hooks/use-pdks";
+import { isAxiosError } from "axios";
+import { useQueryClient } from "@tanstack/react-query";
+import { PDKS_QUERY_KEY, usePdksMutation } from "@/hooks/use-pdks";
 import { ApiClientError } from "@/lib/axios";
 import { PdksYon } from "@/types/pdks";
 import { IzinYok } from "@/components/qr-tara/izin-yok";
@@ -15,10 +17,19 @@ import { QrScannerView } from "@/components/qr-tara/qr-scanner-view";
 import { YonSecilmedi } from "@/components/qr-tara/yon-secilmedi";
 import { YonSecimDialog } from "@/components/qr-tara/yon-secim-dialog";
 import { useStatusBarStyle } from "@/hooks/use-status-bar-style";
-import {
-  getPositionWithTimeout,
-  parseQrPayload,
-} from "@/components/qr-tara/utils";
+import { KonumKapali } from "@/components/qr-tara/konum-kapali";
+import { getKonum, parseQrPayload } from "@/components/qr-tara/utils";
+import { useKonumServisi } from "@/hooks/use-konum-servisi";
+
+// Hata mesajına eklenen kısa teknik detay (sahada hangi hatanın oluştuğunu görebilmek için)
+function hataDetayi(error: unknown) {
+  if (isAxiosError(error)) {
+    return [error.code, error.response?.status, error.message]
+      .filter(Boolean)
+      .join(" · ");
+  }
+  return error instanceof Error ? error.message : String(error);
+}
 
 const QRTara = () => {
   // Siyah kamera ekranı üstünde beyaz durum çubuğu ikonları
@@ -27,6 +38,7 @@ const QRTara = () => {
   const { hasRole } = useRole();
   const { ensurePermissions, permissionsGranted } = usePermissions();
   const pdksMutation = usePdksMutation();
+  const queryClient = useQueryClient();
   const [isProcessing, setIsProcessing] = useState(false);
   const [scanSuccess, setScanSuccess] = useState(false);
   const [yon, setYon] = useState<PdksYon | null>(null);
@@ -34,6 +46,40 @@ const QRTara = () => {
   const scanLockRef = useRef(false);
   const isFocused = useIsFocused();
   const isFocusedRef = useRef(isFocused);
+
+  // Konum servisi kapalıysa QR okutulamaz (iOS/Android aynı): kamera yerine "Konum kapalı" ekranı
+  const { konumAcik, kontrolEt: konumKontrolEt } = useKonumServisi(
+    isFocused && permissionsGranted,
+  );
+
+  // Ekran açıkken konumu önceden "ısıt": kullanıcı yön seçip QR'ı hizalarken
+  // GPS/ağ konumu hazırlanır, okutunca çoğu zaman beklemeden taze konum vardır.
+  const lastFixRef = useRef<Location.LocationObject | null>(null);
+  useEffect(() => {
+    if (!isFocused || !permissionsGranted || !konumAcik) return;
+
+    let subscription: Location.LocationSubscription | null = null;
+    let iptal = false;
+
+    Location.watchPositionAsync(
+      { accuracy: Location.Accuracy.High, timeInterval: 2000 },
+      (position) => {
+        lastFixRef.current = position;
+      },
+    )
+      .then((sub) => {
+        if (iptal) sub.remove();
+        else subscription = sub;
+      })
+      .catch(() => {
+        // Isıtma başlamazsa tarama anında konum yine istenir (getKonum)
+      });
+
+    return () => {
+      iptal = true;
+      subscription?.remove();
+    };
+  }, [isFocused, permissionsGranted, konumAcik]);
 
   useEffect(() => {
     isFocusedRef.current = isFocused;
@@ -90,12 +136,18 @@ const QRTara = () => {
         return;
       }
 
-      const position = await getPositionWithTimeout(
-        { accuracy: Location.Accuracy.Highest },
-        12000,
-      );
+      // Okuturken konum kapatılmış olabilir → kayıt gönderilmez, "Konum kapalı" ekranı gelir
+      if (!(await konumKontrolEt())) {
+        scanLockRef.current = false;
+        return;
+      }
 
-      if (position.mocked) {
+      // Konum açık ama bulunamazsa 0,0 döner (DB'de "konum alınamayan kayıt"), hata fırlatmaz
+      const { position, kaynak } = await getKonum({
+        hazirKonum: lastFixRef.current,
+      });
+
+      if (kaynak !== "yok" && position.mocked) {
         alertIfFocused(
           "Hata",
           "Sahte konum tespit edildi. Kayıt oluşturulamaz.",
@@ -139,6 +191,11 @@ const QRTara = () => {
       alertIfFocused(
         "PDKS Kaydı Oluşturuldu",
         `${sonuc}\n\n` +
+          (kaynak === "yok"
+            ? "⚠️ Konum alınamadı, kayıt konumsuz oluşturuldu.\n\n"
+            : kaynak === "son-bilinen"
+              ? "(Son bilinen konum kullanıldı)\n\n"
+              : "") +
           `Yön: ${yon}\n\n` +
           `QR Verisi:\n` +
           `Bölüm Lokasyon: ${idBolumLokasyon}\n` +
@@ -164,17 +221,45 @@ const QRTara = () => {
         { cancelable: false },
       );
     } catch (error) {
-      if ((error as Error).message === "LOCATION_TIMEOUT") {
-        alertIfFocused(
-          "Hata",
-          "Konum alınamadı, lütfen açık alanda tekrar deneyin.",
-        );
-      } else if (error instanceof ApiClientError) {
+      if (error instanceof ApiClientError) {
         alertIfFocused("Hata", error.message);
-      } else {
-        console.error("QR tarama hatası:", error);
-        alertIfFocused("Hata", "QR işlenemedi. Lütfen tekrar deneyin.");
+        scanLockRef.current = false;
+        return;
       }
+
+      console.error("QR tarama hatası:", error);
+
+      // İstek sunucuya gitti ama yanıt gelmedi/okunamadı → kayıt DB'ye yazılmış olabilir.
+      // Tekrar okutup çift kayıt oluşmasın diye listeyi tazeleyip ana sayfaya yönlendir.
+      const yanitBelirsiz =
+        (isAxiosError(error) && !error.response) ||
+        (error instanceof Error && error.message === "PDKS_INVALID_RESPONSE");
+
+      if (yanitBelirsiz) {
+        queryClient.invalidateQueries({ queryKey: [PDKS_QUERY_KEY] });
+        alertIfFocused(
+          "Yanıt Alınamadı",
+          "Kaydınız sunucuya gönderildi ancak yanıt alınamadı. Kayıt oluşmuş olabilir; " +
+            "tekrar okutmadan önce ana sayfadan bugünkü kaydınızı kontrol edin.\n\n" +
+            `(${hataDetayi(error)})`,
+          [
+            {
+              text: "Tamam",
+              onPress: () => {
+                scanLockRef.current = false;
+                router.replace("/(protected)/(tabs)");
+              },
+            },
+          ],
+          { cancelable: false },
+        );
+        return;
+      }
+
+      alertIfFocused(
+        "Hata",
+        `QR işlenemedi. Lütfen tekrar deneyin.\n\n(${hataDetayi(error)})`,
+      );
       scanLockRef.current = false;
     } finally {
       setIsProcessing(false);
@@ -187,6 +272,8 @@ const QRTara = () => {
         <View className="flex-1">
           {isProcessing || scanSuccess ? (
             <QrScanStatus success={scanSuccess} />
+          ) : konumAcik === false ? (
+            <KonumKapali />
           ) : !yon ? (
             <YonSecilmedi onPress={() => setYonDialogVisible(true)} />
           ) : (

@@ -31,6 +31,22 @@ type PdksMutationParams = {
 const API_URL = "/api/pdks";
 export const PDKS_QUERY_KEY = "pdks";
 
+// Prosedür sonucu { test, sonuc }, [{ test, sonuc }] ya da iç içe dizi ([[{...}]])
+// olarak gelebilir; test alanı olan ilk satırı bulur
+function pdksSonucunuBul(data: unknown): PdksResponse | null {
+  if (Array.isArray(data)) {
+    for (const item of data) {
+      const found = pdksSonucunuBul(item);
+      if (found) return found;
+    }
+    return null;
+  }
+  if (data && typeof data === "object" && "test" in data) {
+    return data as PdksResponse;
+  }
+  return null;
+}
+
 export function usePdksMutation() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -62,17 +78,11 @@ export function usePdksMutation() {
         JsonData: JSON.stringify(data),
         Yon: yon,
       };
-      const response = await api.post<PdksResponse | PdksResponse[]>(
-        API_URL,
-        body,
-      );
+      const response = await api.post<unknown>(API_URL, body);
 
-      // Prosedür sonucu tek satırlık dizi olarak gelebilir
-      const result = Array.isArray(response.data)
-        ? response.data[0]
-        : response.data;
+      const result = pdksSonucunuBul(response.data);
 
-      if (!result || typeof result.test === "undefined") {
+      if (!result) {
         throw new Error("PDKS_INVALID_RESPONSE");
       }
 
