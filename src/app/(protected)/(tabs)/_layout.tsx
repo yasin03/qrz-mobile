@@ -15,6 +15,8 @@ const HIDDEN_SCREENS = [
   "eklentiler",
   "kesintiler",
   "lokasyon",
+  // GEÇİCİ: mobil yük testi ekranı (test bitince silinecek)
+  "yuk-testi",
 ];
 
 // tabBarStyle.paddingTop ile aynı; çizgi tab bar'ın üst kenarına otursun diye

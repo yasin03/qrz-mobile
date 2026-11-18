@@ -2,11 +2,15 @@ import { useEffect } from "react";
 import { Redirect, Stack } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
 
+import { usePdksKuyrukSenkron } from "@/hooks/use-pdks-kuyruk-senkron";
 import { useAuthStore } from "@/stores/auth-store";
 
 export default function ProtectedLayout() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const queryClient = useQueryClient();
+
+  // Sunucuya ulaşılamadığı için cihazda bekleyen QR kayıtlarını gönderir
+  usePdksKuyrukSenkron();
 
   // Çıkışta önceki kullanıcının cache'lenmiş verisi bir sonraki girişte görünmesin
   useEffect(() => {

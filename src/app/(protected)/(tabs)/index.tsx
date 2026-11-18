@@ -7,6 +7,7 @@ import { PDKS_QUERY_KEY } from "@/hooks/use-pdks";
 import { usePersonelDashboard, useYoneticiDashboard } from "@/hooks/use-dashboard";
 import { HomeHeader } from "@/components/home/HomeHeader";
 import { BugunPdksKarti } from "@/components/home/BugunPdksKarti";
+import { BekleyenKayitlarBandi } from "@/components/home/BekleyenKayitlarBandi";
 import { PersonelDashboard } from "@/components/dashboard/PersonelDashboard";
 import { YoneticiDashboard } from "@/components/dashboard/YoneticiDashboard";
 import { useStatusBarStyle } from "@/hooks/use-status-bar-style";
@@ -50,6 +51,7 @@ export default function PersonelHomeScreen() {
             <RefreshControl refreshing={ozet.isRefetching} onRefresh={handleRefresh} />
           }
         >
+          <BekleyenKayitlarBandi />
           <BugunPdksKarti />
 
           <View className="mt-4">

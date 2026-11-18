@@ -20,6 +20,19 @@ import { useStatusBarStyle } from "@/hooks/use-status-bar-style";
 import { KonumKapali } from "@/components/qr-tara/konum-kapali";
 import { getKonum, parseQrPayload } from "@/components/qr-tara/utils";
 import { useKonumServisi } from "@/hooks/use-konum-servisi";
+import {
+  kayitEtiketi,
+  pdksKuyrukGonder,
+  type SenkronSonucu,
+} from "@/hooks/use-pdks-kuyruk-senkron";
+import {
+  konumdanKuyrukKaydi,
+  kuyrugaEkle,
+  kuyruguOku,
+  type KuyrukKaydi,
+} from "@/lib/pdks-kuyruk";
+import { useAuthStore } from "@/stores/auth-store";
+import * as Crypto from "expo-crypto";
 
 // Hata mesajına eklenen kısa teknik detay (sahada hangi hatanın oluştuğunu görebilmek için)
 function hataDetayi(error: unknown) {
@@ -31,6 +44,33 @@ function hataDetayi(error: unknown) {
   return error instanceof Error ? error.message : String(error);
 }
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** Sunucuya hiç ulaşılamadı (yanıt yok, timeout değil) → kısa aralıkla tekrar denenebilir */
+function baglantiKurulamadi(error: unknown) {
+  return (
+    isAxiosError(error) && !error.response && error.code !== "ECONNABORTED"
+  );
+}
+
+/** Ekranda gönderilmeden önce kuyruktaki eski kayıtların gönderim sonucu (mesaja eklenir) */
+function oncekiKayitNotu(onceki: SenkronSonucu | null) {
+  if (!onceki) return "";
+  let not = "";
+  if (onceki.gonderilenler.length) {
+    not += `\n\nBekleyen kaydınız da gönderildi:\n${onceki.gonderilenler
+      .map(kayitEtiketi)
+      .join("\n")}`;
+  }
+  if (onceki.reddedilenler.length) {
+    not += `\n\nBekleyen kayıt kabul edilmedi (daha önce oluşmuş olabilir):\n${onceki.reddedilenler.join("\n")}`;
+  }
+  return not;
+}
+
+/** ERR_NETWORK'te toplam deneme sayısı; aralar 1-3 sn rastgele (kalabalık aynı anda tekrarlamasın) */
+const TEKRAR_SAYISI = 3;
+
 const QRTara = () => {
   // Siyah kamera ekranı üstünde beyaz durum çubuğu ikonları
   useStatusBarStyle("light-content");
@@ -39,8 +79,12 @@ const QRTara = () => {
   const { ensurePermissions, permissionsGranted } = usePermissions();
   const pdksMutation = usePdksMutation();
   const queryClient = useQueryClient();
+  const idKullanici = useAuthStore((s) => s.user?.IDKullanici);
   const [isProcessing, setIsProcessing] = useState(false);
   const [scanSuccess, setScanSuccess] = useState(false);
+  // İşlem/başarı ekranındaki metinler (kuyruk ve tekrar deneme durumları için)
+  const [durumMetni, setDurumMetni] = useState<string | undefined>();
+  const [basariMetni, setBasariMetni] = useState<string | undefined>();
   const [yon, setYon] = useState<PdksYon | null>(null);
   const [yonDialogVisible, setYonDialogVisible] = useState(false);
   const scanLockRef = useRef(false);
@@ -115,10 +159,45 @@ const QRTara = () => {
     router.push("/lokasyon");
   };
 
+  // GEÇİCİ: mobil yük testi ekranı (test bitince silinecek)
+  const handleYukTestiPress = () => {
+    setYonDialogVisible(false);
+    router.push("/yuk-testi");
+  };
+
   const handleBarcodeScanned = async (result: BarcodeScanningResult) => {
     if (!yon || scanLockRef.current || isProcessing) return;
     scanLockRef.current = true;
     setIsProcessing(true); // kamera burada kapanacak (aşağıdaki render'a bak)
+    setDurumMetni(undefined);
+    setBasariMetni(undefined);
+
+    // Sunucuya ulaşılamazsa telefonda saklanacak kayıt (konum alındıktan sonra oluşur)
+    let kuyrukKaydi: KuyrukKaydi | null = null;
+
+    const kuyrugaAl = async (kayit: KuyrukKaydi, not = "") => {
+      await kuyrugaEkle(kayit);
+      setBasariMetni("Kayıt telefonda saklandı");
+      setScanSuccess(true);
+      alertIfFocused(
+        "Kaydınız alındı",
+        `Sunucuya şu an ulaşılamadı. ${kayitEtiketi(kayit)} kaydınız okutma saatiyle ` +
+          "telefonunuzda saklandı ve bağlantı sağlanınca otomatik gönderilecek.\n\n" +
+          "Tekrar okutmanıza gerek yok; bekleyen kaydı ana sayfada görebilirsiniz." +
+          not,
+        [
+          {
+            text: "Tamam",
+            onPress: () => {
+              setScanSuccess(false);
+              scanLockRef.current = false;
+              router.replace("/(protected)/(tabs)");
+            },
+          },
+        ],
+        { cancelable: false },
+      );
+    };
 
     try {
       const { idBolumLokasyon, idBolum, enlem, boylam } = parseQrPayload(
@@ -155,21 +234,69 @@ const QRTara = () => {
         scanLockRef.current = false;
         return;
       }
+      if (idKullanici) {
+        kuyrukKaydi = konumdanKuyrukKaydi(
+          {
+            id: Crypto.randomUUID(),
+            idKullanici,
+            idBolum,
+            idBolumLokasyon,
+            yon,
+          },
+          position,
+        );
+      }
+
+      // Önceki okutmalardan bekleyen kayıt varsa önce onlar gitmeli (giriş, çıkıştan önce).
+      // Hâlâ gönderilemiyorsa bu kayıt da sırayı bozmamak için doğrudan kuyruğa girer.
+      let onceki: SenkronSonucu | null = null;
+      if (
+        kuyrukKaydi &&
+        (await kuyruguOku()).some((k) => k.idKullanici === idKullanici)
+      ) {
+        setDurumMetni("Bekleyen kayıtlar gönderiliyor...");
+        onceki = await pdksKuyrukGonder({ sessiz: true });
+        if (onceki.durum === "bekliyor" || onceki.durum === "mesgul") {
+          await kuyrugaAl(kuyrukKaydi, oncekiKayitNotu(onceki));
+          return;
+        }
+      }
+
       const payload = {
         idBolum,
         idBolumLokasyon,
         position,
         yon,
+        istekId: kuyrukKaydi?.id,
       };
 
-      const { test, sonuc } = await pdksMutation.mutateAsync(payload);
+      // Bağlantı kurulamazsa (ERR_NETWORK) kısa, rastgele aralıklarla birkaç kez daha dene
+      setDurumMetni("Kayıt gönderiliyor...");
+      let yanit: Awaited<ReturnType<typeof pdksMutation.mutateAsync>>;
+      for (let deneme = 1; ; deneme++) {
+        try {
+          yanit = await pdksMutation.mutateAsync(payload);
+          break;
+        } catch (error) {
+          if (deneme < TEKRAR_SAYISI && baglantiKurulamadi(error)) {
+            setDurumMetni(
+              `Bağlantı kurulamadı, tekrar deneniyor (${deneme + 1}/${TEKRAR_SAYISI})...`,
+            );
+            await sleep(1000 + Math.random() * 2000);
+            continue;
+          }
+          throw error;
+        }
+      }
+      const { test, sonuc } = yanit;
+      const not = oncekiKayitNotu(onceki);
 
       if (test !== 1) {
         // Kayıt reddedildi (ör. bugün zaten giriş/çıkış var) - kamera açılmadan yön seçimine dön
         setYon(null);
         alertIfFocused(
           "Uyarı",
-          sonuc || "İşlem gerçekleştirilemedi.",
+          (sonuc || "İşlem gerçekleştirilemedi.") + not,
           [
             {
               text: "Tamam",
@@ -206,7 +333,8 @@ const QRTara = () => {
           `Enlem: ${latitude}\n` +
           `Boylam: ${longitude}\n` +
           `Doğruluk: ${accuracy != null ? `${accuracy.toFixed(1)} m` : "-"}\n` +
-          `Zaman: ${new Date(position.timestamp).toLocaleString("tr-TR")}`,
+          `Zaman: ${new Date(position.timestamp).toLocaleString("tr-TR")}` +
+          not,
         [
           {
             text: "Tamam",
@@ -228,6 +356,18 @@ const QRTara = () => {
       }
 
       console.error("QR tarama hatası:", error);
+
+      // Sunucudan hiç yanıt gelmedi (ağ hatası / timeout) → kayıt telefonda saklanır,
+      // bağlantı gelince okutma saatiyle gönderilir. İlk istek aslında yazılmışsa
+      // sunucu tekrarını "zaten var" diye reddeder; çift kayıt oluşmaz.
+      if (kuyrukKaydi && isAxiosError(error) && !error.response) {
+        try {
+          await kuyrugaAl(kuyrukKaydi);
+          return;
+        } catch (kuyrukHatasi) {
+          console.error("PDKS kuyruğa yazılamadı:", kuyrukHatasi);
+        }
+      }
 
       // İstek sunucuya gitti ama yanıt gelmedi/okunamadı → kayıt DB'ye yazılmış olabilir.
       // Tekrar okutup çift kayıt oluşmasın diye listeyi tazeleyip ana sayfaya yönlendir.
@@ -263,6 +403,7 @@ const QRTara = () => {
       scanLockRef.current = false;
     } finally {
       setIsProcessing(false);
+      setDurumMetni(undefined);
     }
   };
 
@@ -271,7 +412,11 @@ const QRTara = () => {
       {permissionsGranted ? (
         <View className="flex-1">
           {isProcessing || scanSuccess ? (
-            <QrScanStatus success={scanSuccess} />
+            <QrScanStatus
+              success={scanSuccess}
+              yukleniyorMetni={durumMetni}
+              basariMetni={basariMetni}
+            />
           ) : konumAcik === false ? (
             <KonumKapali />
           ) : !yon ? (
@@ -294,6 +439,8 @@ const QRTara = () => {
         onClose={() => setYonDialogVisible(false)}
         showLocationButton={hasRole(ROLE_GROUPS.ADMIN_VE_YONETICI)}
         onLocationPress={handleLocationPress}
+        showYukTestiButton={hasRole(ROLE_GROUPS.ADMIN)}
+        onYukTestiPress={handleYukTestiPress}
       />
     </View>
   );
