@@ -2,7 +2,7 @@
   "expo": {
     "name": "QR Zaman",
     "slug": "qrz-mobile",
-    "version": "1.1",
+    "version": "1.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "qrzmobile",
@@ -73,7 +73,8 @@
           "isAndroidForegroundServiceEnabled": false
         }
       ],
-      "./plugins/withNetworkSecurityConfig.js"
+      "./plugins/withNetworkSecurityConfig.js",
+      "./plugins/withOptionalHardwareFeatures.js"
     ],
     "experiments": {
       "typedRoutes": true,

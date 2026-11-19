@@ -159,12 +159,6 @@ const QRTara = () => {
     router.push("/lokasyon");
   };
 
-  // GEÇİCİ: mobil yük testi ekranı (test bitince silinecek)
-  const handleYukTestiPress = () => {
-    setYonDialogVisible(false);
-    router.push("/yuk-testi");
-  };
-
   const handleBarcodeScanned = async (result: BarcodeScanningResult) => {
     if (!yon || scanLockRef.current || isProcessing) return;
     scanLockRef.current = true;
@@ -439,8 +433,6 @@ const QRTara = () => {
         onClose={() => setYonDialogVisible(false)}
         showLocationButton={hasRole(ROLE_GROUPS.ADMIN_VE_YONETICI)}
         onLocationPress={handleLocationPress}
-        showYukTestiButton={hasRole(ROLE_GROUPS.ADMIN)}
-        onYukTestiPress={handleYukTestiPress}
       />
     </View>
   );

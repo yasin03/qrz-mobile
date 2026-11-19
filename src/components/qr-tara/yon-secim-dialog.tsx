@@ -1,6 +1,6 @@
 import { SheetPanel } from "@/components/ui/sheet-panel";
 import { PdksYon } from "@/types/pdks";
-import { Gauge, LocationEdit, LogIn, LogOut, X } from "lucide-react-native";
+import { LocationEdit, LogIn, LogOut, X } from "lucide-react-native";
 import { Modal, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -10,9 +10,6 @@ type Props = {
   onClose: () => void;
   showLocationButton: boolean;
   onLocationPress: () => void;
-  /** GEÇİCİ: admin için mobil yük testi ekranı */
-  showYukTestiButton?: boolean;
-  onYukTestiPress?: () => void;
 };
 
 export function YonSecimDialog({
@@ -21,8 +18,6 @@ export function YonSecimDialog({
   onClose,
   showLocationButton,
   onLocationPress,
-  showYukTestiButton = false,
-  onYukTestiPress,
 }: Props) {
   const insets = useSafeAreaInsets();
 
@@ -93,19 +88,6 @@ export function YonSecimDialog({
                 <LocationEdit size={20} color="#1e293b" />
                 <Text className="font-medium text-gray-700">
                   Lokasyon Kaydet
-                </Text>
-              </Pressable>
-            )}
-
-            {/* GEÇİCİ: mobil yük testi (admin) — test bitince silinecek */}
-            {showYukTestiButton && (
-              <Pressable
-                onPress={onYukTestiPress}
-                className="mt-3 flex-row items-center justify-center gap-2 rounded-xl border border-dashed border-amber-400 py-3"
-              >
-                <Gauge size={20} color="#b45309" />
-                <Text className="font-medium text-amber-700">
-                  Yük Testi (geçici)
                 </Text>
               </Pressable>
             )}
