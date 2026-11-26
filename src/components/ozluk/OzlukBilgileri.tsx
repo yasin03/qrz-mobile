@@ -192,6 +192,7 @@ export function OzlukBilgileri({ idSubePersonel, isAdminView = false }: Props) {
         { label: "Çıkış Tarihi", value: cikisTarihi },
         { label: "Ayrılış Kodu", value: code(p.PersonelAyrilisKodu) },
         { label: "Geçmişten Kalan İzin", value: num(p.GecmistenKalanIzinGun, " gün") },
+        { label: "Geçmişten Devreden İzin", value: num(p.GecmistenDevredenIzinGun, " gün") },
       ],
     },
     {

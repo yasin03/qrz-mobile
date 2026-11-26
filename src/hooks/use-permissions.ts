@@ -4,8 +4,8 @@ import { Linking, Alert, AppState, Platform } from "react-native";
 import { useEffect, useCallback, useRef } from "react";
 
 export function usePermissions() {
-  const [cameraPerm, requestCamera] = useCameraPermissions();
-  const [locationPerm, requestLocation] = useForegroundPermissions();
+  const [cameraPerm, requestCamera, getCamera] = useCameraPermissions();
+  const [locationPerm, requestLocation, getLocation] = useForegroundPermissions();
   // Android'de izin dialogları art arda açılınca (özellikle Android 9 ve
   // altı bazı cihazlarda) sistem AppState'i "background/active" olarak
   // tetikleyebiliyor. Bu ref, ensurePermissions zaten çalışırken AppState
@@ -14,17 +14,19 @@ export function usePermissions() {
   // stale/false kalmasını) engelliyor.
   const isRequestingRef = useRef(false);
 
-  // Uygulama foreground'a dönünce izinleri tazele
-  // (kullanıcı Ayarlar'dan değiştirmiş olabilir)
+  // Uygulama foreground'a dönünce izin durumunu tazele (kullanıcı Ayarlar'dan
+  // değiştirmiş olabilir). Burada request değil get kullanılır: Android'de
+  // request native izin ekranını açıp AppState'i tekrar background/active
+  // yapabiliyor → listener kendini yeniden tetikleyip döngüye giriyordu.
   useEffect(() => {
     const sub = AppState.addEventListener("change", (state) => {
       if (state === "active" && !isRequestingRef.current) {
-        requestCamera();
-        requestLocation();
+        getCamera();
+        getLocation();
       }
     });
     return () => sub.remove();
-  }, [requestCamera, requestLocation]);
+  }, [getCamera, getLocation]);
 
   const ensurePermissions = useCallback(async (): Promise<boolean> => {
     if (isRequestingRef.current) return false;

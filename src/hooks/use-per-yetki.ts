@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { AppState } from "react-native";
 import { api } from "@/lib/axios";
@@ -7,6 +7,17 @@ import type { PerYetkiKey, PerYetkiType } from "@/types/per-yetki";
 
 const ENDPOINT = "/api/ayarlar/per-yetki";
 export const QUERY_KEY = "per-yetki";
+
+/** Bayatsa yeniden çeker; devam eden istek varsa yenisini atmaz, ona katılır. */
+function yetkileriTazele(
+  queryClient: ReturnType<typeof useQueryClient>,
+  sadeceBayatsa = true,
+) {
+  return queryClient.refetchQueries(
+    { queryKey: [QUERY_KEY], stale: sadeceBayatsa ? true : undefined },
+    { cancelRefetch: false },
+  );
+}
 
 /** Şirketin personel yetki ayarları (IDSirket token'dan). */
 export function usePerYetki(enabled = true) {
@@ -26,15 +37,17 @@ export function usePerYetki(enabled = true) {
   });
 
   // RN'de "pencereye odaklanınca yenile" kendiliğinden çalışmıyor; uygulama
-  // arka plandan öne gelince yetkileri tazele.
-  const { refetch } = query;
+  // arka plandan öne gelince yetkileri tazele. Hook birden çok yerde (menü,
+  // dashboard, sayfa guard'ları) kullanıldığı için her biri ayrı istek atmasın:
+  // sadece bayatsa (staleTime) ve devam eden istek varsa ona katılarak.
+  const queryClient = useQueryClient();
   useEffect(() => {
     if (!enabled) return;
     const sub = AppState.addEventListener("change", (state) => {
-      if (state === "active") refetch();
+      if (state === "active") yetkileriTazele(queryClient);
     });
     return () => sub.remove();
-  }, [enabled, refetch]);
+  }, [enabled, queryClient]);
 
   return query;
 }
@@ -48,7 +61,8 @@ export function usePerYetki(enabled = true) {
  */
 export function usePersonelYetki() {
   const { isPersonel } = useRole();
-  const { data, isLoading, refetch } = usePerYetki(isPersonel);
+  const queryClient = useQueryClient();
+  const { data, isLoading } = usePerYetki(isPersonel);
 
   const can = (key: PerYetkiKey) => !isPersonel || Boolean(data?.[key]);
 
@@ -57,7 +71,7 @@ export function usePersonelYetki() {
     isLoading: isPersonel && isLoading,
     /** Yetkileri hemen yeniden çeker (admin için no-op). */
     refresh: () => {
-      if (isPersonel) refetch();
+      if (isPersonel) yetkileriTazele(queryClient, false);
     },
   };
 }
